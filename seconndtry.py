@@ -22,9 +22,15 @@ try:
 
     sr4.write(f"NP {NumofPeriods}\n")  # Устанавливаем количество периодов сканирования
     #CS Count start, same as START key. 
-    sr4.write("CS\n")
-    data_str = sr4.query("FA\n").strip() # Запускаем сканирование и считываем данные
-    print(f"fa: {data_str}")
+    sr4.write("CR\n")
+    sr4.write("CS\n") #.strip().splitlines()
+    time.sleep(15)
+    print("done")
+    data_str=[]
+    sr4.write("EA\n")
+    for iter_i in range(NumofPeriods):
+        data_str.append(list(map(int, sr4.read().rstrip().split(','))))
+    print(f"fa: {data_str}") 
 
     # Разделяем полученную строку на отдельные значения
     try:

@@ -47,19 +47,30 @@ try:
     #sr4.write("CS\n")
     #time.sleep(10)
     #fa = ['1']*2000
-    fa=[]
+
+
+
     sr4.write("CR\n")
-    sr4.write("FA\n") #.strip().splitlines()
+    sr4.write("CS\n") #.strip().splitlines()
+    time.sleep(15)
+    print("done")
+    fa=[]
+    sr4.write("EA\n")
     for iter_i in range(NumofPeriods):
         fa.append(list(map(int, sr4.read().rstrip().split(','))))
-    # QA = []
-    # for i in range(NumofPeriods):
-    #     QA.append(int(sr4.query("QA" + str(i+1))))
-    # fa1=re.finddall(r'\d+', fa)
-    print(*fa)
-    #fa1=[int(x) for x in fa]
 
-    #
+    print(*fa)
+    print('split')
+    
+    fb=[]
+    time.sleep(0.1)
+    sr4.write("EB\n")
+    time.sleep(0.1)
+    for iter_i in range(NumofPeriods):
+        fb.append(list(map(int, sr4.read().rstrip().split(','))))
+
+    print(*fb)
+    sr4.write("CR\n")
 
     #print(sig)
     #print(type(sig[2]))
@@ -115,42 +126,3 @@ finally:
 # FT Start scan and send N PERIODS data points from both counters.
 # XA Read current contents of counter A.
 # XB Read current contents of counter B. 
-
-
-
-# The number of count PERIODS or data points in a
-# scan may be set from 1 to 2000. The duration of
-# one count period is determined by the preset
-# condition.
-# The time between consecutive count periods is the
-# DWELL TIME and can be set from 2 ms to 60 s.
-# The DWELL output will be TTL high during the
-# DWELL time. This output can be used to trigger
-# external devices.
-# At the end of a scan (of 1 to 2000 count periods)
-# counting may be programmed to STOP or START
-# # the scan over again. 
-# The START key begins the first count period of
-# the programmed scan. The STOP key terminates the current count period
-# and pauses the scan. If scanning, gates and disc
-# levels are held at their last value. The STOP key
-# pressed while in a paused condition will reset the
-# scan and all scanned parameters will return to their
-# start values. The START key pressed while paused
-# resumes the scan by starting the next count period.
-# The DWELL TIME may also be set to
-# EXTERNAL. In this mode, count periods begin
-# with the START key or EXTERNAL START
-# INPUT (TTL rising edge). Count periods
-# terminate with the preset condition, the STOP key,
-# or the EXTERNAL STOP INPUT (TTL rising
-# edge). A STOP key while not counting resets the
-# scan. This allows completely variable dwell times
-# and/or counting periods.
-# All count data is internally buffered for one scan.
-# Data may be read over the computer interfaces
-# during or after a scan. 
-# TRIG SLOPE= RISE
-#  FALL
-# The gate generator may be triggered on either the
-# rising or falling edge of the TRIGGER input
