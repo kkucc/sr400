@@ -47,19 +47,30 @@ try:
     #sr4.write("CS\n")
     #time.sleep(10)
     #fa = ['1']*2000
-    fa=[]
+
+
+
     sr4.write("CR\n")
-    sr4.write("FA\n") #.strip().splitlines()
+    sr4.write("CS\n") #.strip().splitlines()
+    time.sleep(15)
+    print("done")
+    fa=[]
+    sr4.write("EA\n")
     for iter_i in range(NumofPeriods):
         fa.append(list(map(int, sr4.read().rstrip().split(','))))
-    # QA = []
-    # for i in range(NumofPeriods):
-    #     QA.append(int(sr4.query("QA" + str(i+1))))
-    # fa1=re.finddall(r'\d+', fa)
-    print(*fa)
-    #fa1=[int(x) for x in fa]
 
-    #
+    print(*fa)
+    print('split')
+    
+    fb=[]
+    time.sleep(0.1)
+    sr4.write("EB\n")
+    time.sleep(0.1)
+    for iter_i in range(NumofPeriods):
+        fb.append(list(map(int, sr4.read().rstrip().split(','))))
+
+    print(*fb)
+    sr4.write("CR\n")
 
     #print(sig)
     #print(type(sig[2]))
