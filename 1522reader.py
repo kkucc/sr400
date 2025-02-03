@@ -79,7 +79,7 @@ class App:
         # Строка 2: Стоп, f, n
         self.create_row_2()
 
-        # Строка 3: Запись, Период, Значение 3
+        # Строка 3: Запись, Tset, Значение 3
         self.create_row_3()
 
         # --- График ---
@@ -184,11 +184,11 @@ class App:
                                     font=self.FONT_STYLE)
         self.record_button.pack(fill=tk.BOTH, expand=True)
 
-        # Период.
+        # Tset.
         self.coeff_frame = tk.Frame(self.row3_frame, bg=self.VALUE_BG, bd=2, relief=tk.GROOVE)
         self.coeff_frame.grid(row=0, column=1, padx=2, pady=2, sticky="nsew")
 
-        self.coeff_label = tk.Label(self.coeff_frame, text="Период.сек:", font=self.FONT_STYLE,
+        self.coeff_label = tk.Label(self.coeff_frame, text="Tset.сек:", font=self.FONT_STYLE,
                                     fg=self.VALUE_FG, bg=self.VALUE_BG, width=self.LABEL_WIDTH)
         self.coeff_label.grid(row=0, column=0, padx=2, pady=2, sticky="w")
 
