@@ -1,5 +1,5 @@
 import asyncio
-import aiopyvisa
+import pyvisa
 import time
 import tkinter as tk
 from tkinter import messagebox
@@ -10,8 +10,8 @@ class App:
         self.root.title("Данные с датчика")
         self.root.configure(bg="#282c34")
         self.data_filepath = data_filepath
-        self.Tset = 3 * 10**3
-        self.NumofPeriods = 5
+        self.Tset = 0.01 * 10**7
+        self.NumofPeriods = 2000
         self.sr4 = None
         self.reading = False
         self.data_points = []
@@ -91,12 +91,12 @@ class App:
     async def connect_sr400(self):
         """Подключается к прибору SR400 асинхронно."""
         try:
-            rm = aiopyvisa.ResourceManager()
+            rm = pyvisa.ResourceManager()
             sr4 = await rm.open_resource('ASRL5::INSTR')
             await sr4.write("*IDN?\n")
             await asyncio.sleep(0.1)
             return sr4
-        except aiopyvisa.errors.VisaIOError as e:
+        except pyvisa.errors.VisaIOError as e:
             messagebox.showerror("Connection Error", f"Error connecting to SR400: {e}")
             raise
     async def setup_sr400(self):
@@ -104,8 +104,12 @@ class App:
       try:
           await self.sr4.write("CR\n")
           await self.sr4.write(f"CP2,{self.Tset}\n")
-          #await self.sr4.write("DM2 1\n")
-          #await self.sr4.write("NE 1\n")
+          await asyncio.sleep(15)
+          print("done")
+          fa=[]
+          await self.sr4.write("EA\n")
+          for iter_i in range(self.NumofPeriods):
+            fa.append(list(map(int, self.sr4.read().rstrip().split(','))))
           await self.sr4.write(f"NP {self.NumofPeriods}\n")
           await asyncio.sleep(0.1)
       except Exception as e:
