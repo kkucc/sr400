@@ -103,7 +103,6 @@ class App:
       except Exception as e:
           messagebox.showerror("Setup Error", f"Error setting up SR400: {e}")
           raise
- 
     def get_data_sr400(self):
       """Получает данные с прибора SR400."""
       try:
@@ -115,6 +114,7 @@ class App:
         self.sr4.write("EA\n")
         for iter_i in range(self.NumofPeriods):
           data_str.append(list(map(int, self.sr4.read().rstrip().split(','))))
+        self.sr4.write("CR\n")
         print(f"Raw data: {data_str}")
         try:
             self.data_points = data_str
