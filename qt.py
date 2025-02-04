@@ -57,8 +57,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.start()
 
         # Поиск кнопки в интерфейсе (objectName кнопки должен быть "myButton")
-        self.myButton = self.ui.findChild(QtWidgets.QPushButton, "Start_button")
-        self.myButton.clicked.connect(self.start_clicked)
+        self.StartButton = self.ui.findChild(QtWidgets.QPushButton, "Start_button")
+        self.StopButton = self.ui.findChild(QtWidgets.QPushButton, "Stop_button")
+
+        self.StartButton.clicked.connect(self.start_clicked)
+        self.StopButton.clicked.connect(self.stop_button)
+
+    def start_clicked(self):
+        pass
 
     def start_clicked(self):
         pass
