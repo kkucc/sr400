@@ -60,6 +60,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.update_plot)
         self.timer.start()
 
+
         # Поиск кнопки в интерфейсе (objectName кнопки должен быть "StartButton")
         self.StartButton = self.ui.findChild(QtWidgets.QPushButton, "Start_button")
         self.StopButton = self.ui.findChild(QtWidgets.QPushButton, "Stop_button")
