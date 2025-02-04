@@ -14,7 +14,7 @@ class SR400Device:
     def acquire_data(self):
         """Acquires data from the SR400."""
         try:
-            self.sr400.write(f"CP2,{self.tset*10**7}\n") # Set preset
+            self.sr400.write(f"CP2, {self.tset*10**7}\n") # Set preset
             print(self.tset)
             self.sr400.write(f"NP {self.num_periods}\n")  # Set number of periods
             time.sleep(0.1)
