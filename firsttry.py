@@ -52,7 +52,7 @@ try:
 
     sr4.write("CR\n")
     sr4.write("CS\n") #.strip().splitlines()
-    time.sleep(15)
+    time.sleep(10)
     print("done")
     fa=[]
     sr4.write("EA\n")
@@ -70,7 +70,7 @@ try:
         fb.append(list(map(int, sr4.read().rstrip().split(','))))
 
     print(*fb)
-    sr4.write("CR\n")
+    # sr4.write("CR\n")
 
     #print(sig)
     #print(type(sig[2]))
