@@ -1,6 +1,8 @@
 import sys
 import numpy as np
 
+import re
+
 from PySide6 import QtWidgets, QtCore, QtUiTools
 from PySide6.QtWidgets import QApplication, QPushButton, QWidget, QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -11,6 +13,7 @@ class MainWindow(QtWidgets.QMainWindow):
     file_write = False
     N_count = 1
     t_set = 10e-5
+    dwel_time = 10e-5
 
     def __init__(self):
         super().__init__()
@@ -60,7 +63,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.update_plot)
         self.timer.start()
 
-
         # Поиск кнопки в интерфейсе (objectName кнопки должен быть "StartButton")
         self.StartButton = self.ui.findChild(QtWidgets.QPushButton, "Start_button")
         self.StopButton = self.ui.findChild(QtWidgets.QPushButton, "Stop_button")
@@ -68,18 +70,34 @@ class MainWindow(QtWidgets.QMainWindow):
         self.file_check = self.ui.findChild(QtWidgets.QCheckBox, "File")
         self.live_check = self.ui.findChild(QtWidgets.QCheckBox, "live_preview")
 
-        self.spinbox = self.ui.findChild(QtWidgets.QSpinBox, "N_counts")
+        self.n_counts_box = self.ui.findChild(QtWidgets.QSpinBox, "N_counts")
+
+        self.accumulate_time_line = self.ui.findChild(QtWidgets.QLineEdit, "accumulation")
+        self.dwel_time_line = self.ui.findChild(QtWidgets.QLineEdit, "dwel")
+
+        self.text_chanel_A = self.ui.findChild(QtWidgets.QLabel, "Chanel_text_A")
+        self.text_chanel_B = self.ui.findChild(QtWidgets.QLabel, "Chanel_text_B")
+
+        # Подключаем сигналы
 
         self.StartButton.clicked.connect(self.start_clicked)
         self.StartButton.clicked.connect(self.stop_clicked)
 
-        # Подключаем сигналы
-
         self.file_check.stateChanged.connect(self.filewrite)
         self.live_check.stateChanged.connect(self.live)
 
+        self.n_counts_box.valueChanged.connect(self.nCounts)
 
-        self.spinbox.valueChanged.connect(self.on_spinbox_value_changed)
+        self.accumulate_time_line.editingFinished.connect(self.accumulate_time_set)
+        self.dwel_time_line.editingFinished.connect(self.dwel_time_set)
+
+    def accumulate_time_set(self):
+        self.t_set = self.extract_number(self.accumulate_time_line.text())
+        print("Редактирование завершено. Текущий текст:", self.t_set)
+
+    def dwel_time_set(self):
+        self.dwel_time = self.extract_number(self.dwel_time_line.text())
+        print("Редактирование завершено. Текущий текст:", self.dwel_time)
 
     def filewrite(self, state):
         self.file_write = (state == 2)
@@ -97,14 +115,41 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             print("Checkbox не отмечен")
 
-    def on_spinbox_value_changed(self, value):
+    def nCounts(self, value):
+        self.N_count = value
         print("Новое значение spinbox:", value)
 
     def start_clicked(self):
-        pass
+        print("start")
 
     def stop_clicked(self):
         pass
+
+    def extract_number(self, text: str) -> float:
+        # Регулярное выражение:
+        # ^\s*              - начало строки, возможные пробелы
+        # (?:(?P<mul>\d+(?:\.\d+)?)\s*\*\s*)? - опционально: группа "mul" для множителя (целое или дробное число) и символ '*'
+        # (?P<num>\d+(?:\.\d+)?(?:e[-+]?\d+)?|\.\d+(?:e[-+]?\d+)?) - группа "num" для основания числа:
+        #       либо число с целой частью и опциональной дробной частью, с возможной экспонентой,
+        #       либо число начинающееся с точки (например, .5)
+        # \s*$              - возможные пробелы в конце строки и конец строки.
+        pattern = r'^\s*(?:(?P<mul>\d+(?:\.\d+)?)\s*\*\s*)?(?P<num>\d+(?:\.\d+)?(?:e[-+]?\d+)?|\.\d+(?:e[-+]?\d+)?)\s*$'
+
+        match = re.fullmatch(pattern, text, re.IGNORECASE)
+        if not match:
+            raise ValueError("Строка не соответствует ожидаемому формату числа.")
+
+        num_str = match.group("num")
+        base_value = float(num_str)  # преобразуем основание числа в float
+
+        mul_str = match.group("mul")
+        if mul_str:
+            # если имеется множитель, перемножаем его на основание
+            value = float(mul_str) * base_value
+        else:
+            value = base_value
+
+        return value
 
     def update_plot(self):
         """Метод обновления графика."""
