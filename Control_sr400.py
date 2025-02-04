@@ -12,16 +12,20 @@ class Sr400(object):
     t_set = None
 
     def __init__(self, n_counts, t_set):
+        """:param n_counts - количество усреднения, t_set - время накопления"""
         try:
-            rm = pyvisa.ResourceManager()  # "@ni"
+            self.rm = pyvisa.ResourceManager()  # "@ni"
             print("ok")
             self.sr4 = rm.open_resource('ASRL5::INSTR')
             time.sleep(0.1)
             Cur_Num_ofPeriods = self.sr4.query("NN")  # ругается когда добавляю '\n'
             print(Cur_Num_ofPeriods, "Cur_Num_ofPeriods")
             self.numOfPeriods = n_counts
-            print("Read current PORT")
             self.t_set = t_set
+            print("Read current PORT")
+            self.write_com(f"CP 2 {self.t_set * 10 ** 7}")
+            self.write_com(f"NP {self.numOfPeriods}")
+
         except ValueError as error:
             print("порт не открылся")
 
@@ -30,19 +34,25 @@ class Sr400(object):
 
     def numperiod(self, n_counts):
         self.numOfPeriods = n_counts
+        self.write_com(f"NP {self.numOfPeriods}")
 
     def tset(self, t_set):
         self.t_set = t_set
+        self.write_com(f"CP 2 {self.t_set * 10 ** 7}")
 
     def start_count(self):
         self.write_com("CR")
-        self.write_com(f"CP 2 {self.t_set*10**7}")
+        self.write_com(f"CP 2 {self.t_set * 10 ** 7}")
         self.write_com(f"NP {self.numOfPeriods}")
         self.write_com("CS")
 
     def single_read(self, chanel='A'):
-        print("done")
-        fa = []
+        f = []
         self.sr4.write(f"E{chanel}")
         for iter_i in range(self.numOfPeriods):
-            fa.append(list(map(int, self.sr4.read().rstrip().split(','))))
+            f.append(list(map(int, self.sr4.read().rstrip().split(','))))
+        return f
+
+    def close(self):
+        self.sr4.close()
+        self.rm.close()

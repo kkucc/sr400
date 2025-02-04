@@ -1,10 +1,13 @@
 import sys
+import time
+
 import numpy as np
+from Control_sr400 import Sr400
 
 import re
 
 from PySide6 import QtWidgets, QtCore, QtUiTools
-from PySide6.QtWidgets import QApplication, QPushButton, QWidget, QVBoxLayout
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget, QVBoxLayout, QMessageBox
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
@@ -91,6 +94,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.accumulate_time_line.editingFinished.connect(self.accumulate_time_set)
         self.dwel_time_line.editingFinished.connect(self.dwel_time_set)
 
+        self.control_sr400 = Sr400(n_counts=self.N_count, t_set=self.t_set)
+
     def accumulate_time_set(self):
         self.t_set = self.extract_number(self.accumulate_time_line.text())
         print("Редактирование завершено. Текущий текст:", self.t_set)
@@ -120,10 +125,13 @@ class MainWindow(QtWidgets.QMainWindow):
         print("Новое значение spinbox:", value)
 
     def start_clicked(self):
-        print("start")
+        self.control_sr400.start_count()
+        time.sleep(self.t_set * self.N_count + 0.1)
+        Fa = self.control_sr400.single_read('A')
+        print(Fa)
 
     def stop_clicked(self):
-        pass
+        self.control_sr400.write_com("CR")
 
     def extract_number(self, text: str) -> float:
         # Регулярное выражение:
@@ -168,6 +176,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.draw()
 
         self.counter += 1
+
+    def closeEvent(self, event):
+        """
+        Переопределённый метод closeEvent, который вызывается при попытке закрыть окно.
+        Здесь мы выводим диалоговое окно с запросом подтверждения.
+        """
+        reply = QMessageBox.question(
+            self,
+            "Выход из приложения",
+            "Вы действительно хотите выйти?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+
+        if reply == QMessageBox.Yes:
+            # Здесь можно добавить дополнительную логику перед закрытием
+            self.control_sr400.close()
+            event.accept()  # Разрешаем закрытие окна
+        else:
+            event.ignore()  # Отменяем закрытие окна
 
 
 if __name__ == '__main__':
