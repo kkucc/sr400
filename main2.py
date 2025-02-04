@@ -8,7 +8,7 @@ class SR400Device:
     def __init__(self, resource_name):
         self.rm = pyvisa.ResourceManager()
         self.sr400 = self.rm.open_resource(resource_name)
-        self.tset = 0.01
+        self.tset = 0.000001
         self.num_periods = 2000
 
     def acquire_data(self):
@@ -20,7 +20,6 @@ class SR400Device:
             self.sr400.write("CR\n")
             self.sr400.write("CS\n")
             time.sleep(self.tset * (self.num_periods + 1))
-
             fa = []
             self.sr400.write("EA\n")
             for _ in range(self.num_periods):
@@ -120,7 +119,7 @@ class MainApp:
         """Updates the Tset value in the SR400Device object."""
         try:
             new_tset = float(self.tset_entry.get())
-            if 10**(-9) <= new_tset <= 10**2:
+            if 0.000000001<= new_tset <= 10**2:
                 self.sr400_device.tset = new_tset
                 print(f"Tset updated to: {new_tset}")
             else:
