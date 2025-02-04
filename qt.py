@@ -37,6 +37,7 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.setCentralWidget(self.ui)
 
+
         # Поиск виджета для вывода графика (objectName должен быть "plotWidget")
         self.plot_widget = self.findChild(QtWidgets.QWidget, "plotWidget")
         if self.plot_widget is None:
