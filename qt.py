@@ -8,6 +8,10 @@ from matplotlib.figure import Figure
 
 
 class MainWindow(QtWidgets.QMainWindow):
+    file_write = False
+    N_count = 1
+    t_set = 10e-5
+
     def __init__(self):
         super().__init__()
 
@@ -56,17 +60,50 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.update_plot)
         self.timer.start()
 
-        # Поиск кнопки в интерфейсе (objectName кнопки должен быть "myButton")
+
+        # Поиск кнопки в интерфейсе (objectName кнопки должен быть "StartButton")
         self.StartButton = self.ui.findChild(QtWidgets.QPushButton, "Start_button")
         self.StopButton = self.ui.findChild(QtWidgets.QPushButton, "Stop_button")
 
+        self.file_check = self.ui.findChild(QtWidgets.QCheckBox, "File")
+        self.live_check = self.ui.findChild(QtWidgets.QCheckBox, "live_preview")
+
+        self.spinbox = self.ui.findChild(QtWidgets.QSpinBox, "N_counts")
+
         self.StartButton.clicked.connect(self.start_clicked)
-        self.StopButton.clicked.connect(self.stop_button)
+        self.StartButton.clicked.connect(self.stop_clicked)
+
+        # Подключаем сигналы
+
+        self.file_check.stateChanged.connect(self.filewrite)
+        self.live_check.stateChanged.connect(self.live)
+
+
+        self.spinbox.valueChanged.connect(self.on_spinbox_value_changed)
+
+    def filewrite(self, state):
+        self.file_write = (state == 2)
+        # state может быть Qt.Unchecked (0) или Qt.Checked (2)
+        if state == 2:
+            print("Checkbox отмечен")
+        else:
+            print("Checkbox не отмечен")
+
+    def live(self, state):
+        self.file_write = (state == 2)
+        # state может быть Qt.Unchecked (0) или Qt.Checked (2)
+        if state == 2:
+            print("Checkbox отмечен")
+        else:
+            print("Checkbox не отмечен")
+
+    def on_spinbox_value_changed(self, value):
+        print("Новое значение spinbox:", value)
 
     def start_clicked(self):
         pass
 
-    def start_clicked(self):
+    def stop_clicked(self):
         pass
 
     def update_plot(self):
