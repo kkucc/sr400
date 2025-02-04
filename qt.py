@@ -1,10 +1,11 @@
 import sys
 import numpy as np
 
-
 from PySide6 import QtWidgets, QtCore, QtUiTools
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget, QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -55,6 +56,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.timeout.connect(self.update_plot)
         self.timer.start()
 
+        # Поиск кнопки в интерфейсе (objectName кнопки должен быть "myButton")
+        self.myButton = self.ui.findChild(QtWidgets.QPushButton, "Start_button")
+        self.myButton.clicked.connect(self.start_clicked)
+
+    def start_clicked(self):
+        pass
+
     def update_plot(self):
         """Метод обновления графика."""
         # Добавляем новую точку (например, значение синуса)
@@ -72,6 +80,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.canvas.draw()
 
         self.counter += 1
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
