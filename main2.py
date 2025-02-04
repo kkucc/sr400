@@ -105,7 +105,7 @@ class MainApp:
 
         num_periods_label = tk.Label(num_periods_frame, text="N Periods:", font=self.reader_app.FONT_STYLE,
                                      fg=self.reader_app.VALUE_FG, bg=self.reader_app.VALUE_BG,
-                                     width=self.reader_app.LABEL_WIDTH + 2)
+                                     width=self.reader_app.LABEL_WIDTH  + 2)
         num_periods_label.grid(row=0, column=0, padx=2, pady=2, sticky="w")
 
         self.num_periods_entry = tk.Entry(num_periods_frame, font=self.reader_app.FONT_STYLE,
