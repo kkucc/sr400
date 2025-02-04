@@ -189,6 +189,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def handle_progress(self, data):
         # Этот метод вызывается из рабочего потока через сигнал.
         # Здесь можно обрабатывать данные, например, обновлять интерфейс.
+        self.ydata.append(data)
         print("Прогресс/результат:", data)
 
     def stop_clicked(self):
@@ -227,8 +228,8 @@ class MainWindow(QtWidgets.QMainWindow):
         """Метод обновления графика."""
         # Добавляем новую точку (например, значение синуса)
         # array = list(range(1, n + 1))
-        self.xdata.append(self.counter)
-        self.ydata
+        self.xdata = list(range(1, len(self.ydata) + 1))
+        # self.ydata
 
         # Обновляем данные линии
         self.line.set_data(self.xdata, self.ydata)
