@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 
+
 from PySide6 import QtWidgets, QtCore, QtUiTools
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
