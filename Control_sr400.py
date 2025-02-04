@@ -38,11 +38,11 @@ class Sr400(object):
 
     def tset(self, t_set):
         self.t_set = t_set
-        self.write_com(f"CP 2 {self.t_set * 10 ** 7}")
+        self.write_com(f"CP2,{self.t_set * 10 ** 7}")
 
     def start_count(self):
         self.write_com("CR")
-        self.write_com(f"CP 2 {self.t_set * 10 ** 7}")
+        self.write_com(f"CP2,{int(self.t_set * 10 ** 7)}")
         self.write_com(f"NP {self.numOfPeriods}")
         self.write_com("CS")
 
