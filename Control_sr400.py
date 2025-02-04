@@ -9,8 +9,9 @@ pyvisa.log_to_screen = True
 class Sr400(object):
     sr4 = None
     numOfPeriods = 1
+    t_set = None
 
-    def __init__(self, n_counts):
+    def __init__(self, n_counts, t_set):
         try:
             rm = pyvisa.ResourceManager()  # "@ni"
             print("ok")
@@ -20,6 +21,7 @@ class Sr400(object):
             print(Cur_Num_ofPeriods, "Cur_Num_ofPeriods")
             self.numOfPeriods = n_counts
             print("Read current PORT")
+            self.t_set = t_set
         except ValueError as error:
             print("порт не открылся")
 
@@ -29,12 +31,18 @@ class Sr400(object):
     def numperiod(self, n_counts):
         self.numOfPeriods = n_counts
 
+    def tset(self, t_set):
+        self.t_set = t_set
+
+    def start_count(self):
+        self.write_com("CR")
+        self.write_com(f"CP 2 {self.t_set*10**7}")
+        self.write_com(f"NP {self.numOfPeriods}")
+        self.write_com("CS")
+
     def single_read(self, chanel='A'):
-        self.write_com("CR\n")
-        self.write_com("CS\n")  # .strip().splitlines()
-        time.sleep(10)
         print("done")
         fa = []
-        self.sr4.write(f"E{chanel}\n")
+        self.sr4.write(f"E{chanel}")
         for iter_i in range(self.numOfPeriods):
             fa.append(list(map(int, self.sr4.read().rstrip().split(','))))
