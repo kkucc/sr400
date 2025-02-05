@@ -198,6 +198,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Здесь можно обрабатывать данные, например, обновлять интерфейс.
         self.ydata.append(data)
         print("Прогресс/результат:", data)
+        self.worker = None
 
     def handle_progress(self, data):
         # Этот метод вызывается из рабочего потока через сигнал.
@@ -211,6 +212,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Если рабочий объект существует, отправляем сигнал остановки
         if self.worker:
             self.worker.stop()
+            self.worker = None
             print("Запрошена остановка процесса.")
 
     def extract_number(self, text: str) -> float:
