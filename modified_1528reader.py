@@ -40,13 +40,14 @@ class App:
         self.b_value = 0.0
         self.qa_value = 0.0
         self.qb_value = 0.0
-        self.x_value = 0.0  # Average
+        self.x_value = 0.0  # Cumulative average
         self.times = []
         self.a_values = []
         self.b_values = []
-        self.x_values = []
+        self.x_values = [] # List to store average values
         self.qa_values = []
         self.qb_values = []
+        self.num_data_points = 0 # Counter for data points
 
         self.start_time = 0
 
@@ -129,8 +130,8 @@ class App:
         self.start_button_frame.grid(row=0, column=0, padx=2, pady=2, sticky="nsew")
 
         self.start_button = tk.Button(self.start_button_frame, text="Start", command=self.start_reading,
-                                    width=self.BUTTON_WIDTH, bg=self.BUTTON_BG, fg=self.BUTTON_FG,
-                                    font=self.FONT_STYLE)
+                                     width=self.BUTTON_WIDTH, bg=self.BUTTON_BG, fg=self.BUTTON_FG,
+                                     font=self.FONT_STYLE)
         self.start_button.pack(fill=tk.BOTH, expand=True)
 
         self.A_frame = tk.Frame(self.row1_frame, bg=self.VALUE_BG, bd=2, relief=tk.GROOVE)
@@ -141,7 +142,7 @@ class App:
         self.A_label.grid(row=0, column=0, padx=2, pady=2, sticky="w")
 
         self.A_value_label = tk.Label(self.A_frame, text="0.0", font=self.FONT_STYLE, fg=self.VALUE_FG,
-                                    bg=self.VALUE_BG)
+                                     bg=self.VALUE_BG)
         self.A_value_label.grid(row=0, column=1, padx=20, pady=2, sticky="ew")
 
         self.B_frame = tk.Frame(self.row1_frame, bg=self.VALUE_BG, bd=2, relief=tk.GROOVE)
@@ -152,7 +153,7 @@ class App:
         self.B_label.grid(row=0, column=0, padx=2, pady=2, sticky="w")
 
         self.B_value_label = tk.Label(self.B_frame, text="0.0", font=self.FONT_STYLE, fg=self.VALUE_FG,
-                                    bg=self.VALUE_BG)
+                                     bg=self.VALUE_BG)
         self.B_value_label.grid(row=0, column=1, padx=20, pady=2, sticky="ew")
 
     def create_row_2(self):
@@ -176,7 +177,7 @@ class App:
         self.QA_label.grid(row=0, column=0, padx=2, pady=2, sticky="w")
 
         self.QA_value_label = tk.Label(self.QA_frame, text="0.0", font=self.FONT_STYLE, fg=self.VALUE_FG,
-                                    bg=self.VALUE_BG)
+                                     bg=self.VALUE_BG)
         self.QA_value_label.grid(row=0, column=1, padx=20, pady=2, sticky="ew")
 
         self.QB_frame = tk.Frame(self.row2_frame, bg=self.VALUE_BG, bd=2, relief=tk.GROOVE)
@@ -187,7 +188,7 @@ class App:
         self.QB_label.grid(row=0, column=0, padx=2, pady=2, sticky="w")
 
         self.QB_value_label = tk.Label(self.QB_frame, text="0.0", font=self.FONT_STYLE, fg=self.VALUE_FG,
-                                    bg=self.VALUE_BG)
+                                     bg=self.VALUE_BG)
         self.QB_value_label.grid(row=0, column=1, padx=20, pady=2, sticky="ew")
 
     def create_row_3(self):
@@ -199,8 +200,8 @@ class App:
         self.record_button_frame.grid(row=0, column=0, padx=2, pady=2, sticky="nsew")
 
         self.record_button = tk.Button(self.record_button_frame, text="Record", command=self.toggle_recording,
-                                    width=self.BUTTON_WIDTH, bg=self.BUTTON_BG, fg=self.BUTTON_FG,
-                                    font=self.FONT_STYLE)
+                                     width=self.BUTTON_WIDTH, bg=self.BUTTON_BG, fg=self.BUTTON_FG,
+                                     font=self.FONT_STYLE)
         self.record_button.pack(fill=tk.BOTH, expand=True)
 
         # Number of experiments
@@ -221,17 +222,17 @@ class App:
         self.x_frame = tk.Frame(self.row3_frame, bg=self.VALUE_BG, bd=2, relief=tk.GROOVE)
         self.x_frame.grid(row=0, column=2, padx=5, pady=2, sticky="nsew")
 
-        self.x_label = tk.Label(self.x_frame, text="Avg:", font=self.FONT_STYLE, fg=self.VALUE_FG, # Изменено
+        self.x_label = tk.Label(self.x_frame, text="Avg:", font=self.FONT_STYLE, fg=self.VALUE_FG,
                                 bg=self.VALUE_BG, width=self.LABEL_WIDTH)
         self.x_label.grid(row=0, column=0, padx=2, pady=2, sticky="w")
 
         self.x_value_label = tk.Label(self.x_frame, text="0.0", font=self.FONT_STYLE, fg=self.VALUE_FG,
-                                    bg=self.VALUE_BG)
+                                     bg=self.VALUE_BG)
         self.x_value_label.grid(row=0, column=1, padx=20, pady=2, sticky="ew")
 
         self.start_record_button = tk.Button(self.row3_frame, text="Record on Start: Off",
-                                            bg="#565656", fg="white", font=self.FONT_STYLE,
-                                            command=self.toggle_start_record)
+                                             bg="#565656", fg="white", font=self.FONT_STYLE,
+                                             command=self.toggle_start_record)
         self.start_record_button.grid(row=0, column=3, padx=10, pady=5, sticky='w')
 
     def check_file(self):
@@ -272,14 +273,14 @@ class App:
             return False
 
     def toggle_start_record(self):
-        """Toggles the state of the 'Record on Start' button.42"""
-        self.start_record = not self.start_record#42
+        """Toggles the state of the 'Record on Start' button."""
+        self.start_record = not self.start_record
         if self.start_record:
             self.start_record_button.config(text="Record on Start: On", bg="green")
             if self.reading: # Start recording if it is reading
                 if not self.is_recording:
-                    self.is_recording = True
-                    self.toggle_recording()
+                  self.is_recording = True
+                  self.toggle_recording()
         else:
             self.start_record_button.config(text="Record on Start: Off", bg="#565656")
 
@@ -315,7 +316,7 @@ class App:
                     self.times = []
                     self.a_values = []
                     self.b_values = []
-                    self.x_values = []#42
+                    self.x_values = []
                     # Опрос QA и QB не запускаем, т.к. начинается эксперимент
                     self.data_thread = threading.Thread(target=self.read_data_from_device)
                     self.data_thread.daemon = True
@@ -331,7 +332,7 @@ class App:
                 self.toggle_recording()
 
             if self.data_source and not isinstance(self.data_source, str):
-                # Опрос QA и QB не останавливаем, т.к. он должен работать в прост42
+                # Опрос QA и QB не останавливаем, т.к. он должен работать в простое
                 self.data_source.stop_acquisition()
                 self.start_button.config(state=tk.NORMAL)
 
@@ -346,6 +347,7 @@ class App:
         self.b_value = 0.0
         self.x_value = 0.0
         self.data_list = []
+        self.num_data_points = 0
 
         self.update_gui_values()
         self.update_plot()
@@ -386,7 +388,7 @@ class App:
             if self.data_source:
                 try:
                     data = self.data_source.acquire_data()
-                    self.current_experiment_num += 1#42
+                    self.current_experiment_num += 1
                     print(f"Experiment {self.current_experiment_num} completed.")
                     if data:
                         for row in data:
@@ -401,9 +403,9 @@ class App:
                         self.start_qa_update()
                         self.start_qb_update()
                     else:
-                        # Пауза между экспериментами42
+                        # Пауза между экспериментами
                         self.is_between_experiments = True
-                        time.sleep(1.5)  # Пауза 5 секунд между экспериментами
+                        time.sleep(5)  # Пауза 5 секунд между экспериментами
                         self.is_between_experiments = False
 
                 except Exception as e:
@@ -416,7 +418,7 @@ class App:
         self.B_value_label.config(text=f"{self.b_value:.1f}")
         self.QA_value_label.config(text=f"{self.qa_value:.1f}")
         self.QB_value_label.config(text=f"{self.qb_value:.1f}")
-        self.x_value_label.config(text=f"{self.x_value:.1f}")
+        self.x_value_label.config(text=f"{self.x_value:.4f}") # Display with more precision
 
     def update_plot(self):
         """Updates data on the plot."""
@@ -425,7 +427,7 @@ class App:
             return
 
         if not self.start_time and self.reading:
-            return
+          return
 
         if len(self.a_values) > self.MAX_DATA_POINTS:
             # self.times = self.times[-self.MAX_DATA_POINTS:] # times не нужен тк используется index
@@ -434,12 +436,12 @@ class App:
             self.x_values = self.x_values[-self.MAX_DATA_POINTS:]
 
         self.ax.clear()
-        #используем индексы вместо времени
+        # Изменено: используем индексы вместо времени
         indices = list(range(len(self.a_values)))
         if indices:
-            self.ax.plot(indices, self.a_values, label='A', linestyle='-', color='blue')
-            self.ax.plot(indices, self.b_values, label='B', linestyle='-', color='red')
-            self.ax.plot(indices, self.x_values, label='Avg', linestyle='-', color='green')
+          self.ax.plot(indices, self.a_values, label='A', linestyle='-', color='blue')
+          self.ax.plot(indices, self.b_values, label='B', linestyle='-', color='red')
+          self.ax.plot(indices, self.x_values, label='Avg', linestyle='-', color='green')
 
         self.ax.set_title('Data', fontsize=16)
         self.ax.set_xlabel('Index')
@@ -464,15 +466,16 @@ class App:
 
             self.a_value = numbers[0] if len(numbers) > 0 else 0.0
             self.b_value = numbers[1] if len(numbers) > 1 else 0.0
-            # Изменено: вычисляем среднее значение
-            self.x_value = (self.a_value) / 2 if len(numbers) > 1 else 0.0  # Calculate the average42 было# +self.b_value
+            
+            # Corrected average calculation:
+            self.num_data_points += 1
+            self.x_value = self.x_value + ((self.a_value + self.b_value) - self.x_value) / self.num_data_points
+            self.x_values.append(self.x_value)
 
             self.times.append(current_time)
             self.a_values.append(self.a_value)
             self.b_values.append(self.b_value)
-            # Изменено: обновляем значение на графике (x_values) и в интерфейсе (x_value_label)42
-            self.x_values.append(self.x_value)
-            self.x_value_label.config(text=f"{self.x_value:.1f}")
+            # Изменено: обновляем значение на графике (x_values) и в интерфейсе (x_value_label)
 
             if self.is_recording:
                 # timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S.%f")
@@ -490,9 +493,9 @@ class App:
             if self.data_source and self.qa_active and not self.is_between_experiments:  # опрос только когда qa_active=true и не в промежутке
                 try:
                     with self.sr400_lock:
-                        time.sleep(0.25)
+                        time.sleep(2)
                         self.qa_value = float(self.data_source.sr400.query("QA").strip('\r\n'))
-                        time.sleep(0.25)
+                        time.sleep(2)
                         self.update_gui_values()
                 except Exception as e:
                     print(f"Error reading QA value: {e}")
@@ -504,9 +507,9 @@ class App:
             if self.data_source and self.qb_active and not self.is_between_experiments:
                 try:
                     with self.sr400_lock:
-                        time.sleep(0.25)
+                        time.sleep(2)
                         self.qb_value = float(self.data_source.sr400.query("QB").strip('\r\n'))
-                        time.sleep(0.25)
+                        time.sleep(2)
                         self.update_gui_values()
                 except Exception as e:
                     print(f"Error reading QB value: {e}")
