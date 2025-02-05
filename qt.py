@@ -31,7 +31,7 @@ class Worker(QtCore.QObject):
 
         # Вместо одного большого time.sleep() делим время на короткие интервалы
         total_sleep = self.t_set * self.N_count + self.dwell_time * self.N_count  + 0.1
-        interval = 1e-10  # интервал проверки флага остановки
+        interval = 1e-9  # интервал проверки флага остановки
         elapsed = 0.0
         while self._is_running and elapsed < total_sleep:
             time.sleep(min(interval, total_sleep - elapsed))
