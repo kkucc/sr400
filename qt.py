@@ -1,5 +1,7 @@
 import sys
 import time
+import csv
+import datetime
 
 import numpy as np
 from Control_sr400 import Sr400
@@ -199,7 +201,20 @@ class MainWindow(QtWidgets.QMainWindow):
         # Здесь можно обрабатывать данные, например, обновлять интерфейс.
         if data is not None:
             self.ydata.append(data)
+            self.xdata = list(range(1, len(self.ydata) + 1))
             print("Прогресс/результат:", data)
+            if self.file_check:
+                # Получаем текущее время
+                current_time = datetime.datetime.now()
+                # Форматируем строку с датой и временем
+                filename = current_time.strftime("%Y-%m-%d_%H-%M-%S.csv")
+                with open(filename, "w", newline='', encoding="utf-8") as csvfile:
+                    writer = csv.writer(csvfile)
+                    # Записываем заголовок (опционально)
+                    writer.writerow(["X", "Y"])
+                    # Записываем данные
+                    for xi, yi in zip(self.xdata, self.ydata):
+                        writer.writerow([xi, yi])
         else:
             print("Работа остановлена до завершения измерения.")
         # Обнуляем ссылки, чтобы поток и объект worker могли быть удалены сборщиком мусора
