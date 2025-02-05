@@ -528,7 +528,7 @@ class App:
         if hasattr(self, 'data_file') and self.data_file:
             self.data_file.close()
         self.root.destroy()
-    установлен tset: 0.001
+    # установлен tset: 0.001
 # Error reading QB value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
 # Error reading QA value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
 # Error acquiring data: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
