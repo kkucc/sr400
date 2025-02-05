@@ -14,13 +14,13 @@ class SR400Device:
     def acquire_data(self):
         """Acquires data from the SR400."""
         try:
-            self.sr400.write(f"CP2, {self.tset*10**6}\n") # Set preset
+            self.sr400.write(f"CP2, {self.tset*10**7 + 1}\n") # Set preset
             print(f"установлен tset: {self.tset}")
             self.sr400.write(f"NP {self.num_periods}\n")  # Set number of periods
-            time.sleep(0.1)
+            time.sleep(1)
             self.sr400.write("CR\n")
             self.sr400.write("CS\n")
-            time.sleep(self.tset * (self.num_periods + 1))
+            time.sleep(20)
 
             fa = []
             self.sr400.write("EA\n")
@@ -161,3 +161,21 @@ if __name__ == "__main__":
     root = tk.Tk()
     app = MainApp(root)
     root.mainloop()
+
+
+#     All experiments completed.
+# Exception in Tkinter callback
+# Traceback (most recent call last):
+#   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.10_3.10.3056.0_x64__qbz5n2kfra8p0\lib\tkinter\__init__.py", line 1921, in __call__
+#     return self.func(*args)
+#   File "C:\Program Files\WindowsApps\PythonSoftwareFoundation.Python.3.10_3.10.3056.0_x64__qbz5n2kfra8p0\lib\tkinter\__init__.py", line 839, in callit
+#     func(*args)
+#   File "c:\Users\OPOlab\Documents\Git\sr4\modified_1524reader.py", line 503, in start_gui_update
+#     self.process_data_queue()
+#   File "c:\Users\OPOlab\Documents\Git\sr4\modified_1524reader.py", line 459, in process_data_queue
+#     self.update_plot()
+#   File "c:\Users\OPOlab\Documents\Git\sr4\modified_1524reader.py", line 417, in update_plot
+#     elapsed_times = [(t - self.start_time) for t in self.times]
+#   File "c:\Users\OPOlab\Documents\Git\sr4\modified_1524reader.py", line 417, in <listcomp>
+#     elapsed_times = [(t - self.start_time) for t in self.times]
+# TypeError: unsupported operand type(s) for -: 'datetime.datetime' and 'float'
