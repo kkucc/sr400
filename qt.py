@@ -166,6 +166,7 @@ class MainWindow(QtWidgets.QMainWindow):
             print("Checkbox не отмечен")
 
     def nCounts(self, value):
+
         self.N_count = value
         self.control_sr400.numperiod(value)
         print("Новое значение spinbox:", value)
@@ -193,6 +194,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Здесь можно обрабатывать данные, например, обновлять интерфейс.
         self.ydata.append(data)
         print("Прогресс/результат:", data)
+
 
     def stop_clicked(self):
         # Если рабочий объект существует, отправляем сигнал остановки

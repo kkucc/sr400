@@ -17,7 +17,7 @@ class Sr400(object):
         try:
             self.rm = pyvisa.ResourceManager()  # "@ni"
             print("ok")
-            self.sr4 = rm.open_resource('ASRL5::INSTR')
+            self.sr4 = self.rm.open_resource('ASRL5::INSTR')
             time.sleep(0.1)
             Cur_Num_ofPeriods = self.sr4.query("NN")  # ругается когда добавляю '\n'
             print(Cur_Num_ofPeriods, "Cur_Num_ofPeriods")
@@ -44,8 +44,11 @@ class Sr400(object):
 
     def start_count(self):
         self.write_com("CR")
+        time.sleep(0.1)
         self.write_com(f"CP2,{int(self.t_set * 10 ** 7)}")
+        time.sleep(0.1)
         self.write_com(f"NP {self.numOfPeriods}")
+        time.sleep(0.1)
         self.write_com("CS")
 
     def single_read(self, chanel='A'):

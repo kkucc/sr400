@@ -235,7 +235,7 @@ class App:
     def validate_input(self, new_value):
         """Validates the input value in the Period field."""
         try:
-            if new_value == "" or (10**(-9) <= float(new_value) <= 10**2):
+            if new_value == "" or (0.000000001 <= float(new_value) <= 10**2):
                 return True
             else:
                 return False
