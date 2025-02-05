@@ -1,5 +1,7 @@
 import sys
 import time
+import csv
+import datetime
 
 import numpy as np
 from Control_sr400 import Sr400
@@ -14,7 +16,7 @@ from matplotlib.figure import Figure
 
 # Пример рабочего класса, который выполняет длительную операцию
 class Worker(QtCore.QObject):
-    finished = QtCore.Signal()
+    finished = QtCore.Signal(object)
     progress = QtCore.Signal(object)  # можно отправлять данные, если нужно
 
     def __init__(self, control_sr400, t_set, N_count, dwel_time):
@@ -144,6 +146,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def accumulate_time_set(self):
         self.t_set = self.extract_number(self.accumulate_time_line.text())
+        self.control_sr400.tset(self.t_set)
         print("Редактирование завершено. Текущий текст:", self.t_set)
 
     def dwel_time_set(self):
@@ -193,12 +196,32 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.worker_thread.start()
 
+        self.ydata = []
+
     def handle_result(self, data):
         # Этот метод вызывается из рабочего потока через сигнал.
         # Здесь можно обрабатывать данные, например, обновлять интерфейс.
-        self.ydata.append(data)
-        print("Прогресс/результат:", data)
+        if data is not None:
+            self.ydata.append(data)
+            self.xdata = list(range(1, len(self.ydata) + 1))
+            print("Прогресс/результат:", data)
+            if self.file_check:
+                # Получаем текущее время
+                current_time = datetime.datetime.now()
+                # Форматируем строку с датой и временем
+                filename = current_time.strftime("%Y-%m-%d_%H-%M-%S.csv")
+                with open(filename, "w", newline='', encoding="utf-8") as csvfile:
+                    writer = csv.writer(csvfile)
+                    # Записываем заголовок (опционально)
+                    writer.writerow(["N", "Counts"])
+                    # Записываем данные
+                    for xi, yi in zip(self.xdata, self.ydata):
+                        writer.writerow([xi, yi])
+        else:
+            print("Работа остановлена до завершения измерения.")
+        # Обнуляем ссылки, чтобы поток и объект worker могли быть удалены сборщиком мусора
         self.worker = None
+        self.worker_thread = None
 
     def handle_progress(self, data):
         # Этот метод вызывается из рабочего потока через сигнал.
@@ -213,7 +236,10 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.worker:
             self.worker.stop()
             self.worker = None
+            self.worker_thread = None
             print("Запрошена остановка процесса.")
+        else:
+            print("Нет активного процесса для остановки.")
 
     def extract_number(self, text: str) -> float:
         # Регулярное выражение:
