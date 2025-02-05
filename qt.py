@@ -30,8 +30,8 @@ class Worker(QtCore.QObject):
         self.control_sr400.start_count()
 
         # Вместо одного большого time.sleep() делим время на короткие интервалы
-        total_sleep = self.t_set * self.N_count + 0.1
-        interval = 0.1  # интервал проверки флага остановки
+        total_sleep = self.t_set * self.N_count + self.dwell_time * self.N_count  + 0.1
+        interval = 1e-10  # интервал проверки флага остановки
         elapsed = 0.0
         while self._is_running and elapsed < total_sleep:
             time.sleep(min(interval, total_sleep - elapsed))
@@ -42,9 +42,8 @@ class Worker(QtCore.QObject):
         # Если операция не была остановлена извне, читаем данные
         if self._is_running:
             Fa = self.control_sr400.single_read('A')
-            self.progress.emit(Fa)  # отправляем результат через сигнал
-
-        self.finished.emit()
+            # self.progress.emit(Fa)  # отправляем результат через сигнал
+            self.finished.emit(Fa)
 
     def stop(self):
         self._is_running = False
@@ -126,10 +125,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.text_chanel_A = self.ui.findChild(QtWidgets.QLabel, "Chanel_text_A")
         self.text_chanel_B = self.ui.findChild(QtWidgets.QLabel, "Chanel_text_B")
 
+        
+
         # Подключаем сигналы
 
         self.StartButton.clicked.connect(self.start_clicked)
-        self.StartButton.clicked.connect(self.stop_clicked)
+        self.StopButton.clicked.connect(self.stop_clicked)
 
         self.file_check.stateChanged.connect(self.filewrite)
         self.live_check.stateChanged.connect(self.live)
@@ -172,11 +173,13 @@ class MainWindow(QtWidgets.QMainWindow):
         print("Новое значение spinbox:", value)
 
     def start_clicked(self):
-        # Запрещаем повторный запуск, если поток уже работает
-        if self.worker_thread is not None and self.worker_thread.isRunning():
-            print("Задача уже запущена!")
-            return
-        # Создаем рабочий объект и поток
+        if self.worker_thread is not None:
+            if self.worker_thread.isRunning():
+                print("Задача уже запущена!")
+                return
+            else:
+                self.worker_thread.deleteLater()  # Удаляем старый поток, если он завершен
+
         self.worker = Worker(self.control_sr400, self.t_set, self.N_count, self.dwel_time)
         self.worker_thread = QtCore.QThread()
 
@@ -186,14 +189,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.worker.finished.connect(self.worker.deleteLater)
         self.worker_thread.finished.connect(self.worker_thread.deleteLater)
         self.worker.progress.connect(self.handle_progress)
+        self.worker.finished.connect(self.handle_result)
 
         self.worker_thread.start()
 
-    def handle_progress(self, data):
+    def handle_result(self, data):
         # Этот метод вызывается из рабочего потока через сигнал.
         # Здесь можно обрабатывать данные, например, обновлять интерфейс.
         self.ydata.append(data)
         print("Прогресс/результат:", data)
+
+    def handle_progress(self, data):
+        # Этот метод вызывается из рабочего потока через сигнал.
+        # Здесь можно обрабатывать данные, например, обновлять интерфейс.
+        # self.ydata.append(data)
+        # print("Прогресс/результат:", data)
+        pass
 
 
     def stop_clicked(self):
