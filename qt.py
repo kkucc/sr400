@@ -41,13 +41,11 @@ class WorkerLive(QtCore.QObject):
                 Fa = self.control_sr400.sr4.query("FA")
                 time.sleep(self.t_set + 0.1)
                 Fa = list(map(int, Fa.rstrip().split(',')))
-                print(Fa)
 
                 self.control_sr400.write_com("CR")
                 Fb = self.control_sr400.sr4.query("FB")
                 time.sleep(self.t_set + self.dwell_time + 0.1)
                 Fb = list(map(int, Fb.rstrip().split(',')))
-                print(Fb)
                 
                 self.progress.emit((Fa, Fb))
             except Exception as e:
