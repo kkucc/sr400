@@ -14,7 +14,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 
-# Пример рабочего класса, который выполняет длительную операцию
+# Пример рабочего класса, который выполняет длительную операцию QThread: Destroyed while thread is still running
 class Worker(QtCore.QObject):
     finished = QtCore.Signal(object)
     progress = QtCore.Signal(object)  # можно отправлять данные, если нужно
@@ -32,19 +32,20 @@ class Worker(QtCore.QObject):
         self.control_sr400.start_count()
 
         # Вместо одного большого time.sleep() делим время на короткие интервалы
-        total_sleep = self.t_set * self.N_count + self.dwell_time * self.N_count  + 0.1
-        interval = 1e-9  # интервал проверки флага остановки
+        total_sleep = self.t_set * self.N_count + 0.1 #  + self.dwell_time * self.N_count
+        interval = 1e-1  # интервал проверки флага остановки
         elapsed = 0.0
         while self._is_running and elapsed < total_sleep:
             time.sleep(min(interval, total_sleep - elapsed))
             elapsed += interval
             # Здесь можно посылать сигналы с прогрессом, если требуется
-            self.progress.emit(elapsed)
+            
 
         # Если операция не была остановлена извне, читаем данные
         if self._is_running:
             Fa = self.control_sr400.single_read('A')
             # self.progress.emit(Fa)  # отправляем результат через сигнал
+            self.progress.emit(Fa)
             self.finished.emit(Fa)
 
     def stop(self):
@@ -202,10 +203,10 @@ class MainWindow(QtWidgets.QMainWindow):
         # Этот метод вызывается из рабочего потока через сигнал.
         # Здесь можно обрабатывать данные, например, обновлять интерфейс.
         if data is not None:
-            self.ydata.append(data)
+            self.ydata.extend([item[0] for item in data])
             self.xdata = list(range(1, len(self.ydata) + 1))
-            print("Прогресс/результат:", data)
-            if self.file_check:
+            print("Прогресс/результат:", self.ydata, len(self.ydata))
+            if self.file_write:
                 # Получаем текущее время
                 current_time = datetime.datetime.now()
                 # Форматируем строку с датой и временем
@@ -224,11 +225,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.worker_thread = None
 
     def handle_progress(self, data):
+        print("Прогресс/результат:", data)
         # Этот метод вызывается из рабочего потока через сигнал.
         # Здесь можно обрабатывать данные, например, обновлять интерфейс.
         # self.ydata.append(data)
         # print("Прогресс/результат:", data)
-        pass
+        
 
 
     def stop_clicked(self):
