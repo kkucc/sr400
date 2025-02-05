@@ -166,6 +166,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def nCounts(self, value):
         self.N_count = value
+        self.control_sr400.numperiod(value)
         print("Новое значение spinbox:", value)
 
     def start_clicked(self):
