@@ -10,8 +10,9 @@ class Sr400(object):
     sr4 = None
     numOfPeriods = 1
     t_set = None
+    dwel_time = None
 
-    def __init__(self, n_counts, t_set):
+    def __init__(self, n_counts, t_set, dwel_time):
         """:param n_counts - количество усреднения, t_set - время накопления"""
         try:
             self.rm = pyvisa.ResourceManager()  # "@ni"
@@ -22,6 +23,7 @@ class Sr400(object):
             print(Cur_Num_ofPeriods, "Cur_Num_ofPeriods")
             self.numOfPeriods = n_counts
             self.t_set = t_set
+            self.dwel_time = dwel_time
             print("Read current PORT")
             self.write_com(f"CP 2 {self.t_set * 10 ** 7}")
             self.write_com(f"NP {self.numOfPeriods}")

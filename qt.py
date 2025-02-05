@@ -139,7 +139,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.accumulate_time_line.editingFinished.connect(self.accumulate_time_set)
         self.dwel_time_line.editingFinished.connect(self.dwel_time_set)
 
-        self.control_sr400 = Sr400(n_counts=self.N_count, t_set=self.t_set)
+        self.control_sr400 = Sr400(n_counts=self.N_count, t_set=self.t_set, dwel_time=self.dwel_time)
 
     def accumulate_time_set(self):
         self.t_set = self.extract_number(self.accumulate_time_line.text())
