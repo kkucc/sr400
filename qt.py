@@ -35,7 +35,7 @@ class WorkerLive(QtCore.QObject):
         self.control_sr400.sr4.write_com("NP 1")
         while self._is_running:
             try:
-                time.sleep(self.t_set+0.01)
+                time.sleep(self.t_set + 0.01)
                 Fa = self.control_sr400.sr4.query("FA")
                 time.sleep(self.t_set + 0.01)
                 Fb = self.control_sr400.sr4.query("FB")
@@ -68,7 +68,7 @@ class Worker(QtCore.QObject):
         self.control_sr400.start_count()
 
         # Вместо одного большого time.sleep() делим время на короткие интервалы
-        total_sleep = self.t_set * self.N_count  + self.dwell_time * self.N_count + 0.1  # + self.dwell_time * self.N_count
+        total_sleep = self.t_set * self.N_count + self.dwell_time * self.N_count + 0.1  # + self.dwell_time * self.N_count
         interval = 1e-1  # интервал проверки флага остановки
         elapsed = 0.0
         while self._is_running and elapsed < total_sleep:
@@ -93,7 +93,6 @@ class Worker(QtCore.QObject):
         self._is_running = False
         # Дополнительно можно отправить команду на прерывание в устройстве:
         self.control_sr400.write_com("CR")
-
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -293,16 +292,15 @@ class MainWindow(QtWidgets.QMainWindow):
         # Здесь можно обрабатывать данные, например, обновлять интерфейс.
         if data is not None:
             dataA, dataB = data
-            
+
             dataA = [item[0] for item in dataA]
             dataB = [item[0] for item in dataB]
-            
-            avrA = sum(dataA)/self.N_count 
-            avrB = sum(dataB)/self.N_count
+
+            avrA = sum(dataA) / self.N_count
+            avrB = sum(dataB) / self.N_count
 
             self.text_chanel_A.setText(f"Chanel A: {avrA}")
             self.text_chanel_B.setText(f"Chanel B: {avrB}")
-
 
             self.ydata.extend(dataA)
             self.ydata2.extend(dataB)
