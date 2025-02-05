@@ -31,7 +31,8 @@ class WorkerLive(QtCore.QObject):
         # self.control_sr400.start_count()
 
         # Вместо одного большого time.sleep() делим время на короткие интервалы
-
+        self.control_sr400.tset(self.t_set)
+        time.sleep(0.01)
         self.control_sr400.write_com("NP 1")
         time.sleep(self.t_set + 0.1)
         print("start")
@@ -39,12 +40,12 @@ class WorkerLive(QtCore.QObject):
             try:
                 self.control_sr400.write_com("CR")
                 Fa = self.control_sr400.sr4.query("FA")
-                time.sleep(self.t_set + 0.1)
+                time.sleep(self.t_set + 0.01)
                 Fa = list(map(int, Fa.rstrip().split(',')))
 
                 self.control_sr400.write_com("CR")
                 Fb = self.control_sr400.sr4.query("FB")
-                time.sleep(self.t_set + self.dwell_time + 0.1)
+                time.sleep(self.t_set + self.dwell_time + 0.01)
                 Fb = list(map(int, Fb.rstrip().split(',')))
                 
                 self.progress.emit((Fa, Fb))
@@ -258,6 +259,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ydata = []
             self.ydata2 = []
         else:
+            self.ydata = []
+            self.ydata2 = []
             if self.worker_thread is not None:
                 if self.worker_thread.isRunning():
                     print("Задача уже запущена!")
