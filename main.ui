@@ -176,6 +176,16 @@
       </spacer>
      </item>
      <item>
+      <widget class="QLabel" name="file_name">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QCheckBox" name="File">
        <property name="text">
         <string>write file</string>
