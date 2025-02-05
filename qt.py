@@ -28,19 +28,30 @@ class WorkerLive(QtCore.QObject):
 
     def run(self):
         # Запуск счетчика
-        self.control_sr400.start_count()
+        # self.control_sr400.start_count()
 
         # Вместо одного большого time.sleep() делим время на короткие интервалы
 
-        self.control_sr400.sr4.write_com("NP 1")
+        self.control_sr400.write_com("NP 1")
+        time.sleep(self.t_set + 0.1)
+        print("start")
         while self._is_running:
             try:
-                time.sleep(self.t_set + 0.01)
+                self.control_sr400.write_com("CR")
                 Fa = self.control_sr400.sr4.query("FA")
-                time.sleep(self.t_set + 0.01)
+                time.sleep(self.t_set + 0.1)
+                Fa = list(map(int, Fa.rstrip().split(',')))
+                print(Fa)
+
+                self.control_sr400.write_com("CR")
                 Fb = self.control_sr400.sr4.query("FB")
+                time.sleep(self.t_set + self.dwell_time + 0.1)
+                Fb = list(map(int, Fb.rstrip().split(',')))
+                print(Fb)
+                
                 self.progress.emit((Fa, Fb))
-            except:
+            except Exception as e:
+                print(e)
                 break
         self.finished.emit(None)
 
@@ -191,6 +202,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.control_sr400 = Sr400(n_counts=self.N_count, t_set=self.t_set, dwel_time=self.dwel_time)
 
+
     def accumulate_time_set(self):
         self.t_set = self.extract_number(self.accumulate_time_line.text())
         self.control_sr400.tset(self.t_set)
@@ -232,29 +244,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 else:
                     self.worker_thread.deleteLater()  # Удаляем старый поток, если он завершен
 
-            self.worker = WorkerLive(self.control_sr400, self.t_set, self.N_count, self.dwel_time)
-            self.worker_thread = QtCore.QThread()
-
-            self.worker.moveToThread(self.worker_thread)
-            self.worker_thread.started.connect(self.worker.run)
-            self.worker.finished.connect(self.worker_thread.quit)
-            self.worker.finished.connect(self.worker.deleteLater)
-            self.worker_thread.finished.connect(self.worker_thread.deleteLater)
-            self.worker.progress.connect(self.handle_progress_live)
-            self.worker.finished.connect(self.handle_result_live)
-
-            self.worker_thread.start()
-
-            self.ydata = []
-            self.ydata2 = []
-        else:
-            if self.worker_thread is not None:
-                if self.worker_thread.isRunning():
-                    print("Задача уже запущена!")
-                    return
-                else:
-                    self.worker_thread.deleteLater()  # Удаляем старый поток, если он завершен
-
             self.worker = Worker(self.control_sr400, self.t_set, self.N_count, self.dwel_time)
             self.worker_thread = QtCore.QThread()
 
@@ -270,20 +259,43 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self.ydata = []
             self.ydata2 = []
+        else:
+            if self.worker_thread is not None:
+                if self.worker_thread.isRunning():
+                    print("Задача уже запущена!")
+                    return
+                else:
+                    self.worker_thread.deleteLater()  # Удаляем старый поток, если он завершен
+
+            self.worker = WorkerLive(self.control_sr400, self.t_set, self.N_count, self.dwel_time)
+            self.worker_thread = QtCore.QThread()
+
+            self.worker.moveToThread(self.worker_thread)
+            self.worker_thread.started.connect(self.worker.run)
+            self.worker.finished.connect(self.worker_thread.quit)
+            self.worker.finished.connect(self.worker.deleteLater)
+            self.worker_thread.finished.connect(self.worker_thread.deleteLater)
+            self.worker.progress.connect(self.handle_progress_live)
+            self.worker.finished.connect(self.handle_result_live)
+
+            self.worker_thread.start()
+
+            self.ydata = []
+            self.ydata2 = []
 
     def handle_progress_live(self, data):
         # Этот метод вызывается из рабочего потока через сигнал.
         # Здесь можно обрабатывать данные, например, обновлять интерфейс.
         if data is not None:
             dataA, dataB = data
-            self.ydata.extend([item[0] for item in dataA])
-            self.ydata2.extend([item[0] for item in dataB])
+            self.ydata.append(dataA[0])
+            self.ydata2.append(dataB[0])
             print("Прогресс/результат:", self.ydata, len(self.ydata))
         else:
             print("Работа остановлена до завершения измерения.")
         # Обнуляем ссылки, чтобы поток и объект worker могли быть удалены сборщиком мусора
 
-    def handle_result(self, data):
+    def handle_result_live(self, data):
         self.worker = None
         self.worker_thread = None
 
