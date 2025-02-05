@@ -51,25 +51,26 @@ try:
 
 
     sr4.write("CR\n")
-    sr4.write("CS\n") #.strip().splitlines()
-    time.sleep(10)
+    #sr4.write("CS\n") #.strip().splitlines()
+    time.sleep(1)
     print("done")
-    fa=[]
-    sr4.write("EA\n")
-    for iter_i in range(NumofPeriods):
-        fa.append(list(map(int, sr4.read().rstrip().split(','))))
+    fa=sr4.query("QA ")
+    # fa=[]
+    # sr4.write("EA\n")
+    # for iter_i in range(NumofPeriods):
+    #     fa.append(list(map(int, sr4.read().rstrip().split(','))))
 
-    print(*fa)
-    print('split')
+    print(repr(fa))
+    # print('split')
     
-    fb=[]
-    time.sleep(0.1)
-    sr4.write("EB\n")
-    time.sleep(0.1)
-    for iter_i in range(NumofPeriods):
-        fb.append(list(map(int, sr4.read().rstrip().split(','))))
+    # fb=[]
+    # time.sleep(0.1)
+    # sr4.write("EB\n")
+    # time.sleep(0.1)
+    # for iter_i in range(NumofPeriods):
+    #     fb.append(list(map(int, sr4.read().rstrip().split(','))))
 
-    print(*fb)
+    # print(*fb)
     # sr4.write("CR\n")
 
     #print(sig)

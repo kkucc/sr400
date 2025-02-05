@@ -477,7 +477,9 @@ class App:
       while True:
           if self.data_source:
               try:
-                  self.qa_value = float(self.data_source.sr400.query("QA").strip('\r\n '))#Error reading QA value: could not convert string to float: ''
+                  time.sleep(1)
+                  self.qa_value = float(self.data_source.sr400.query("QA").strip('\r\n'))#Error reading QA value: could not convert string to float: ''
+                  time.sleep(1)
                   self.update_gui_values()
               except Exception as e:
                   print(f"Error reading QA value: {e}")
@@ -488,7 +490,9 @@ class App:
       while True:
           if self.data_source:
               try:
-                  self.qb_value = float(self.data_source.sr400.query("QB").strip('\r\n '))#Error reading QB value: could not convert string to float: ''
+                  time.sleep(1)
+                  self.qb_value = float(self.data_source.sr400.query("QB").strip('\r\n'))#Error reading QB value: could not convert string to float: ''
+                  time.sleep(1)
                   self.update_gui_values()
               except Exception as e:
                   print(f"Error reading QB value: {e}")
@@ -524,3 +528,36 @@ class App:
         if hasattr(self, 'data_file') and self.data_file:
             self.data_file.close()
         self.root.destroy()
+    установлен tset: 0.001
+# Error reading QB value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Error reading QA value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Error acquiring data: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Experiment 1 completed.
+# All experiments completed.
+# Num_periods updated to: 2000
+# Tset updated to: 0.001
+# установлен tset: 0.001
+# Error reading QB value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Error reading QA value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Error acquiring data: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Experiment 1 completed.
+# установлен tset: 0.001
+# Error reading QB value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Error reading QA value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Error acquiring data: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Experiment 2 completed.
+# установлен tset: 0.001
+# Error reading QB value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Error reading QA value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Error acquiring data: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Experiment 3 completed.
+# установлен tset: 0.001
+# Error reading QA value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Error acquiring data: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Experiment 4 completed.
+# Error reading QB value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# установлен tset: 0.001
+# Error reading QB value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Error acquiring data: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
+# Experiment 5 completed.
+# All experiments completed.
