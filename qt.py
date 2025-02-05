@@ -14,7 +14,7 @@ from matplotlib.figure import Figure
 
 # Пример рабочего класса, который выполняет длительную операцию
 class Worker(QtCore.QObject):
-    finished = QtCore.Signal()
+    finished = QtCore.Signal(object)
     progress = QtCore.Signal(object)  # можно отправлять данные, если нужно
 
     def __init__(self, control_sr400, t_set, N_count, dwel_time):
@@ -144,6 +144,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def accumulate_time_set(self):
         self.t_set = self.extract_number(self.accumulate_time_line.text())
+        self.control_sr400.tset(self.t_set)
         print("Редактирование завершено. Текущий текст:", self.t_set)
 
     def dwel_time_set(self):
@@ -196,9 +197,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def handle_result(self, data):
         # Этот метод вызывается из рабочего потока через сигнал.
         # Здесь можно обрабатывать данные, например, обновлять интерфейс.
-        self.ydata.append(data)
-        print("Прогресс/результат:", data)
+        if data is not None:
+            self.ydata.append(data)
+            print("Прогресс/результат:", data)
+        else:
+            print("Работа остановлена до завершения измерения.")
+        # Обнуляем ссылки, чтобы поток и объект worker могли быть удалены сборщиком мусора
         self.worker = None
+        self.worker_thread = None
 
     def handle_progress(self, data):
         # Этот метод вызывается из рабочего потока через сигнал.
@@ -213,7 +219,10 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.worker:
             self.worker.stop()
             self.worker = None
+            self.worker_thread = None
             print("Запрошена остановка процесса.")
+        else:
+            print("Нет активного процесса для остановки.")
 
     def extract_number(self, text: str) -> float:
         # Регулярное выражение:
