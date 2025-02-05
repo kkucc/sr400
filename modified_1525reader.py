@@ -27,7 +27,7 @@ class App:
         self.ENTRY_FG = "grey"
         self.VALUE_BG = "#333842"
         self.VALUE_FG = "white"
-        self.UPDATE_INTERVAL = 1
+        self.UPDATE_INTERVAL = 0.1
         self.PLOT_UPDATE_INTERVAL = 0.1
         self.MAX_DATA_POINTS = 100
         self.num_experiments = 0 # Default value, changed by entry
@@ -58,6 +58,10 @@ class App:
         self.data_thread = None
         self.qa_thread = None
         self.qb_thread = None
+        self.sr400_lock = threading.Lock()
+        self.qa_active = False  # Флаг активности для QA
+        self.qb_active = False  # Флаг активности для QB
+        self.is_between_experiments = False # Флаг, что сейчас промежуток между экспериментами
 
         # --- Data Source Handling ---
         if isinstance(self.data_source, str):  # File path
@@ -75,6 +79,8 @@ class App:
             self.start_button.config(state=tk.NORMAL)
             self.stop_button.config(state=tk.DISABLED)
             self.start_gui_update()
+            self.qa_active = True
+            self.qb_active = True
             self.start_qa_update()
             self.start_qb_update()
 
@@ -254,7 +260,7 @@ class App:
                 return False
         except ValueError:
             return False
-    
+
     def validate_m_input(self, new_value):
         """Validates the input value in the M field."""
         try:
@@ -293,7 +299,7 @@ class App:
             if self.start_record:
                 self.is_recording = True
                 self.toggle_recording()
-            
+
             try:
                 self.num_experiments = int(self.m_entry.get())
             except ValueError:
@@ -309,24 +315,24 @@ class App:
                     self.a_values = []
                     self.b_values = []
                     self.x_values = []
+                    # Опрос QA и QB не запускаем, т.к. начинается эксперимент
                     self.data_thread = threading.Thread(target=self.read_data_from_device)
                     self.data_thread.daemon = True
                     self.data_thread.start()
 
     def stop_reading(self):
-      """Stops data reading (for both file and device)."""
-      if self.reading:
-          self.reading = False
-          self.start_button.config(state=tk.NORMAL)
-          self.stop_button.config(state=tk.DISABLED)
-          if self.is_recording:
-              self.toggle_recording()
-          if self.data_source and not isinstance(self.data_source, str):
-              # Stop device-specific reading if applicable
-              self.data_source.stop_acquisition()
-              self.start_button.config(state=tk.NORMAL)
-          #self.reset_data() #dont reset if stop
+        """Stops data reading (for both file and device)."""
+        if self.reading:
+            self.reading = False
+            self.start_button.config(state=tk.NORMAL)
+            self.stop_button.config(state=tk.DISABLED)
+            if self.is_recording:
+                self.toggle_recording()
 
+            if self.data_source and not isinstance(self.data_source, str):
+                # Опрос QA и QB не останавливаем, т.к. он должен работать в простое
+                self.data_source.stop_acquisition()
+                self.start_button.config(state=tk.NORMAL)
     def reset_data(self):
       """Resets all data and the plot."""
       self.data_queue.queue.clear()
@@ -378,15 +384,29 @@ class App:
             if self.data_source:
                 try:
                     if self.current_experiment_num < self.num_experiments:
-                      data = self.data_source.acquire_data()
-                      self.current_experiment_num += 1
-                      print(f"Experiment {self.current_experiment_num} completed.")
-                      if data:
-                          for row in data:
-                            self.data_queue.put(row)
-                      if self.current_experiment_num >= self.num_experiments:
-                        self.stop_reading()
-                        print("All experiments completed.")
+                        data = self.data_source.acquire_data()
+                        self.current_experiment_num += 1
+                        print(f"Experiment {self.current_experiment_num} completed.")
+                        if data:
+                            for row in data:
+                                self.data_queue.put(row)
+
+                        if self.current_experiment_num >= self.num_experiments:
+                            self.stop_reading()
+                            print("All experiments completed.")
+                            # Запускаем опрос QA и QB после завершения всех экспериментов
+                            self.qa_active = True
+                            self.qb_active = True
+                            self.start_qa_update()
+                            self.start_qb_update()
+                        else:
+                            # Пауза между экспериментами
+                            self.is_between_experiments = True
+                            time.sleep(5)  # Пауза 5 секунд между экспериментами
+                            self.is_between_experiments = False
+                    else:
+                      self.stop_reading()
+                      print("All experiments completed.")
 
                 except Exception as e:
                     print(f"Error reading data from device: {e}")
@@ -401,107 +421,113 @@ class App:
         self.x_value_label.config(text=f"{self.x_value:.1f}")
 
     def update_plot(self):
-      """Updates data on the plot."""
-      current_time = time.time()
-      if current_time - self.last_plot_time < self.PLOT_UPDATE_INTERVAL:
+        """Updates data on the plot."""
+        current_time = time.time()
+        if current_time - self.last_plot_time < self.PLOT_UPDATE_INTERVAL:
+            return
+
+        if not self.start_time:
           return
 
-      if len(self.times) > self.MAX_DATA_POINTS:
-          self.times = self.times[-self.MAX_DATA_POINTS:]
-          self.a_values = self.a_values[-self.MAX_DATA_POINTS:]
-          self.b_values = self.b_values[-self.MAX_DATA_POINTS:]
-          self.x_values = self.x_values[-self.MAX_DATA_POINTS:]
+        if len(self.times) > self.MAX_DATA_POINTS:
+            self.times = self.times[-self.MAX_DATA_POINTS:]
+            self.a_values = self.a_values[-self.MAX_DATA_POINTS:]
+            self.b_values = self.b_values[-self.MAX_DATA_POINTS:]
+            self.x_values = self.x_values[-self.MAX_DATA_POINTS:]
 
-      self.ax.clear()
-      if self.times:
-        elapsed_times = [(t - self.start_time) for t in self.times]
-        self.ax.plot(elapsed_times, self.a_values, label='A', linestyle='-', color='blue')
-        self.ax.plot(elapsed_times, self.b_values, label='B', linestyle='-', color='red')
-        self.ax.plot(elapsed_times, self.x_values, label='Sum', linestyle='-', color='green')
+        self.ax.clear()
+        if self.times:
+          elapsed_times = [(t - self.start_time) for t in self.times]
+          self.ax.plot(elapsed_times, self.a_values, label='A', linestyle='-', color='blue')
+          self.ax.plot(elapsed_times, self.b_values, label='B', linestyle='-', color='red')
+          self.ax.plot(elapsed_times, self.x_values, label='Sum', linestyle='-', color='green')
 
-      self.ax.set_title('Data', fontsize=16)
-      self.ax.set_xlabel('Time (s)')
-      self.ax.set_ylabel('Values')
-      self.ax.grid(True)
-      self.ax.legend()
-      self.canvas.draw()
-      self.last_plot_time = current_time
+        self.ax.set_title('Data', fontsize=16)
+        self.ax.set_xlabel('Time (s)')
+        self.ax.set_ylabel('Values')
+        self.ax.grid(True)
+        self.ax.legend()
+        self.canvas.draw()
+        self.last_plot_time = current_time
 
     def process_data_queue(self):
-      """Processes the data queue and updates the GUI."""
-      while not self.data_queue.empty():
-          row = self.data_queue.get()
-          numbers = list(map(float, row))
-          formatted_data = " ".join(map(str, numbers))
+        """Processes the data queue and updates the GUI."""
+        while not self.data_queue.empty():
+            row = self.data_queue.get()
+            numbers = list(map(float, row))
+            formatted_data = " ".join(map(str, numbers))
 
-          self.data_list.append(formatted_data)
-          if len(self.data_list) > 10:
-              self.data_list.pop(0)
+            self.data_list.append(formatted_data)
+            if len(self.data_list) > 10:
+                self.data_list.pop(0)
 
-          current_time = datetime.datetime.now()
+            current_time = time.time() #datetime.datetime.now()
 
-          self.a_value = numbers[0] if len(numbers) > 0 else 0.0
-          self.b_value = numbers[1] if len(numbers) > 1 else 0.0
-          self.x_value += self.a_value + self.b_value # Calculate the sum
+            self.a_value = numbers[0] if len(numbers) > 0 else 0.0
+            self.b_value = numbers[1] if len(numbers) > 1 else 0.0
+            self.x_value += self.a_value + self.b_value # Calculate the sum
 
-          self.times.append(current_time)
-          self.a_values.append(self.a_value)
-          self.b_values.append(self.b_value)
-          self.x_values.append(self.x_value)
+            self.times.append(current_time)
+            self.a_values.append(self.a_value)
+            self.b_values.append(self.b_value)
+            self.x_values.append(self.x_value)
 
-          if self.is_recording:
-              timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S.%f")
-              with open(self.recording_file.name, "a") as rec_file:
-                  rec_file.write(f"{timestamp} - {formatted_data}\n")
+            if self.is_recording:
+                # timestamp = current_time.strftime("%Y-%m-%d %H:%M:%S.%f")
+                timestamp = str(current_time)
+                with open(self.recording_file.name, "a") as rec_file:
+                    rec_file.write(f"{timestamp} - {formatted_data}\n")
 
-          self.update_gui_values()
+            self.update_gui_values()
 
-      self.update_plot()
-
-    def start_qa_update(self):
-      """Starts a separate thread for updating QA value."""
-      if not self.qa_thread or not self.qa_thread.is_alive():
-          self.qa_thread = threading.Thread(target=self.update_qa_continuously)
-          self.qa_thread.daemon = True
-          self.qa_thread.start()
-
-    def start_qb_update(self):
-      """Starts a separate thread for updating QA value."""
-      if not self.qb_thread or not self.qb_thread.is_alive():
-          self.qb_thread = threading.Thread(target=self.update_qb_continuously)
-          self.qb_thread.daemon = True
-          self.qb_thread.start()
+        self.update_plot()
 
     def update_qa_continuously(self):
-      """Continuously updates the QA value from the device."""
-      while True:
-          if self.data_source:
-              try:
-                  time.sleep(1)
-                  self.qa_value = float(self.data_source.sr400.query("QA").strip('\r\n'))
-                  time.sleep(1)
-                  self.update_gui_values()
-              except Exception as e:
-                  print(f"Error reading QA value: {e}")
-          time.sleep(self.UPDATE_INTERVAL)
+        """Continuously updates the QA value from the device."""
+        while True:
+            if self.data_source and self.qa_active and not self.is_between_experiments: # опрос только когда qa_active=true и не в промежутке
+                try:
+                    with self.sr400_lock:
+                        time.sleep(2)
+                        self.qa_value = float(self.data_source.sr400.query("QA").strip('\r\n'))
+                        time.sleep(2)
+                        self.update_gui_values()
+                except Exception as e:
+                    print(f"Error reading QA value: {e}")
+            time.sleep(self.UPDATE_INTERVAL)
 
     def update_qb_continuously(self):
-      """Continuously updates the QA value from the device."""
-      while True:
-          if self.data_source:
-              try:
-                  time.sleep(1)
-                  self.qb_value = float(self.data_source.sr400.query("QB").strip('\r\n'))
-                  time.sleep(1)
-                  self.update_gui_values()
-              except Exception as e:
-                  print(f"Error reading QB value: {e}")
-          time.sleep(self.UPDATE_INTERVAL)
+        """Continuously updates the QB value from the device."""
+        while True:
+            if self.data_source and self.qb_active and not self.is_between_experiments:
+                try:
+                    with self.sr400_lock:
+                        time.sleep(2)
+                        self.qb_value = float(self.data_source.sr400.query("QB").strip('\r\n'))
+                        time.sleep(2)
+                        self.update_gui_values()
+                except Exception as e:
+                    print(f"Error reading QB value: {e}")
+            time.sleep(self.UPDATE_INTERVAL)
+
+    def start_qa_update(self):
+        """Starts a separate thread for updating QA value."""
+        if not self.qa_thread or not self.qa_thread.is_alive():
+            self.qa_thread = threading.Thread(target=self.update_qa_continuously)
+            self.qa_thread.daemon = True
+            self.qa_thread.start()
+
+    def start_qb_update(self):
+        """Starts a separate thread for updating QB value."""
+        if not self.qb_thread or not self.qb_thread.is_alive():
+            self.qb_thread = threading.Thread(target=self.update_qb_continuously)
+            self.qb_thread.daemon = True
+            self.qb_thread.start()
 
     def start_gui_update(self):
         """Starts periodic GUI update."""
         self.process_data_queue()
-        self.root.after(int(self.UPDATE_INTERVAL * 100), self.start_gui_update)
+        self.root.after(int(self.UPDATE_INTERVAL * 1000), self.start_gui_update)
 
     def toggle_recording(self):
         """Toggles data recording to a file."""
@@ -528,36 +554,3 @@ class App:
         if hasattr(self, 'data_file') and self.data_file:
             self.data_file.close()
         self.root.destroy()
-    # установлен tset: 0.001
-# Error reading QB value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Error reading QA value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Error acquiring data: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Experiment 1 completed.
-# All experiments completed.
-# Num_periods updated to: 2000
-# Tset updated to: 0.001
-# установлен tset: 0.001
-# Error reading QB value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Error reading QA value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Error acquiring data: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Experiment 1 completed.
-# установлен tset: 0.001
-# Error reading QB value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Error reading QA value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Error acquiring data: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Experiment 2 completed.
-# установлен tset: 0.001
-# Error reading QB value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Error reading QA value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Error acquiring data: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Experiment 3 completed.
-# установлен tset: 0.001
-# Error reading QA value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Error acquiring data: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Experiment 4 completed.
-# Error reading QB value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# установлен tset: 0.001
-# Error reading QB value: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Error acquiring data: VI_ERROR_TMO (-1073807339): Timeout expired before operation completed.
-# Experiment 5 completed.
-# All experiments completed.
