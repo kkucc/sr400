@@ -32,21 +32,21 @@ class Worker(QtCore.QObject):
         self.control_sr400.start_count()
 
         # Вместо одного большого time.sleep() делим время на короткие интервалы
-        total_sleep = self.t_set * self.N_count + 0.1 #  + self.dwell_time * self.N_count
+        total_sleep = self.t_set * self.N_count + 0.1  # + self.dwell_time * self.N_count
         interval = 1e-1  # интервал проверки флага остановки
         elapsed = 0.0
         while self._is_running and elapsed < total_sleep:
             time.sleep(min(interval, total_sleep - elapsed))
             elapsed += interval
             # Здесь можно посылать сигналы с прогрессом, если требуется
-            
 
         # Если операция не была остановлена извне, читаем данные
         if self._is_running:
             Fa = self.control_sr400.single_read('A')
+            Fb = self.control_sr400.single_read('B')
             # self.progress.emit(Fa)  # отправляем результат через сигнал
             self.progress.emit(Fa)
-            self.finished.emit(Fa)
+            self.finished.emit((Fa, Fb))
 
     def stop(self):
         self._is_running = False
@@ -100,11 +100,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Создаём ось для рисования графика и начальную линию
         self.ax = self.figure.add_subplot(111)
-        self.line, = self.ax.plot([], [], 'r-')  # красная линия
+        # Линия для канала A (например, красная)
+        self.line, = self.ax.plot([], [], 'r-', label="Канал A")
+        # Линия для канала B (например, синяя)
+        self.line2, = self.ax.plot([], [], 'b-', label="Канал B")
+        # Добавляем легенду
+        self.ax.legend()
 
         # Инициализируем данные для графика
         self.xdata = []
         self.ydata = []
+        self.ydata2 = []  # для канала B
         self.counter = 0
 
         # Настраиваем таймер для обновления графика каждые 1000 мс (1 секунда)
@@ -127,8 +133,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.text_chanel_A = self.ui.findChild(QtWidgets.QLabel, "Chanel_text_A")
         self.text_chanel_B = self.ui.findChild(QtWidgets.QLabel, "Chanel_text_B")
-
-        
 
         # Подключаем сигналы
 
@@ -198,12 +202,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.worker_thread.start()
 
         self.ydata = []
+        self.ydata2 = []
 
     def handle_result(self, data):
         # Этот метод вызывается из рабочего потока через сигнал.
         # Здесь можно обрабатывать данные, например, обновлять интерфейс.
         if data is not None:
-            self.ydata.extend([item[0] for item in data])
+            dataA, dataB = data
+            self.ydata.extend([item[0] for item in dataA])
+            self.ydata2.extend([item[0] for item in dataB])
             self.xdata = list(range(1, len(self.ydata) + 1))
             print("Прогресс/результат:", self.ydata, len(self.ydata))
             if self.file_write:
@@ -230,8 +237,6 @@ class MainWindow(QtWidgets.QMainWindow):
         # Здесь можно обрабатывать данные, например, обновлять интерфейс.
         # self.ydata.append(data)
         # print("Прогресс/результат:", data)
-        
-
 
     def stop_clicked(self):
         # Если рабочий объект существует, отправляем сигнал остановки
