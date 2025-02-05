@@ -17,12 +17,13 @@ class Worker(QtCore.QObject):
     finished = QtCore.Signal()
     progress = QtCore.Signal(object)  # можно отправлять данные, если нужно
 
-    def __init__(self, control_sr400, t_set, N_count):
+    def __init__(self, control_sr400, t_set, N_count, dwel_time):
         super().__init__()
         self.control_sr400 = control_sr400
         self.t_set = t_set
         self.N_count = N_count
         self._is_running = True  # Флаг для остановки
+        self.dwell_time = dwel_time
 
     def run(self):
         # Запуск счетчика
@@ -175,7 +176,7 @@ class MainWindow(QtWidgets.QMainWindow):
             print("Задача уже запущена!")
             return
         # Создаем рабочий объект и поток
-        self.worker = Worker(self.control_sr400, self.t_set, self.N_count)
+        self.worker = Worker(self.control_sr400, self.t_set, self.N_count, self.dwel_time)
         self.worker_thread = QtCore.QThread()
 
         self.worker.moveToThread(self.worker_thread)
