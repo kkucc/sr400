@@ -477,7 +477,7 @@ class App:
       while True:
           if self.data_source:
               try:
-                  self.qa_value = float(self.data_source.sr400.query("QA"))
+                  self.qa_value = float(self.data_source.sr400.query("QA").strip('\r\n '))#Error reading QA value: could not convert string to float: ''
                   self.update_gui_values()
               except Exception as e:
                   print(f"Error reading QA value: {e}")
@@ -488,7 +488,7 @@ class App:
       while True:
           if self.data_source:
               try:
-                  self.qb_value = float(self.data_source.sr400.query("QB"))
+                  self.qb_value = float(self.data_source.sr400.query("QB").strip('\r\n '))#Error reading QB value: could not convert string to float: ''
                   self.update_gui_values()
               except Exception as e:
                   print(f"Error reading QB value: {e}")
