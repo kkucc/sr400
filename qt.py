@@ -196,6 +196,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.worker_thread.start()
 
+        self.ydata = []
+
     def handle_result(self, data):
         # Этот метод вызывается из рабочего потока через сигнал.
         # Здесь можно обрабатывать данные, например, обновлять интерфейс.
