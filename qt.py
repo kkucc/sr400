@@ -15,8 +15,8 @@ from matplotlib.figure import Figure
 class MainWindow(QtWidgets.QMainWindow):
     file_write = False
     N_count = 1
-    t_set = 10e-5
-    dwel_time = 10e-5
+    t_set = 10e-3
+    dwel_time = 8e-3
 
     def __init__(self):
         super().__init__()
@@ -122,12 +122,17 @@ class MainWindow(QtWidgets.QMainWindow):
             print("Checkbox не отмечен")
 
     def nCounts(self, value):
-        self.N_count = value
+        self.N_count = int(value)
+        self.control_sr400.numOfPeriods = self.N_count
         print("Новое значение spinbox:", value)
 
     def start_clicked(self):
         self.control_sr400.start_count()
-        time.sleep(self.t_set * self.N_count + 0.1)
+        start_time = time.time()
+        bol = True
+        while(bol):
+            bol = (self.t_set * self.N_count + self.dwel_time * self.N_count + 1) >= (start_time - time.time())
+        
         Fa = self.control_sr400.single_read('A')
         print(Fa)
 
