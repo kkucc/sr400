@@ -211,7 +211,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 with open(filename, "w", newline='', encoding="utf-8") as csvfile:
                     writer = csv.writer(csvfile)
                     # Записываем заголовок (опционально)
-                    writer.writerow(["X", "Y"])
+                    writer.writerow(["N", "Counts"])
                     # Записываем данные
                     for xi, yi in zip(self.xdata, self.ydata):
                         writer.writerow([xi, yi])
