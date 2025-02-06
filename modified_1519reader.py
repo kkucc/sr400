@@ -10,15 +10,6 @@ from queue import Queue
 import numpy as np  # Import numpy
 
 class App:
-    """
-    A GUI application for reading and displaying data from a sensor or device,
-    specifically designed to work with an SR400 photon counter, but also
-    supports reading from CSV or space-delimited files.
-
-    The application acquires data in discrete "experiments," calculating and
-    displaying the average values of A and B channels for each experiment.
-    QA and QB values are read continuously from the SR400, even between experiments.
-    """
     def __init__(self, root, data_source=None):
         """
         Initializes the application.
@@ -566,114 +557,46 @@ class App:
         self.qb_active = False
         self.root.destroy() # Destroy the Tkinter window
 
-# --- Example Usage (with SR400 class definition) ---
+# Experiment 1 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 2 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 3 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 4 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 5 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 6 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 7 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 8 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 9 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 10 completed: A=0.0, B=0.0, Avg=0.0
+# All experiments completed.
+# Last Experiment: A=0.0, B=0.0, Avg=0.0
+# #recorded_data file for M =10
+# Timestamp, A, B
+# 8 - 0.0
+# 1738833575.668996 - 0.0
+# 1738833578.222657 - 0.0
+# 1738833580.639949 - 0.0
+# 1738833583.123729 - 0.0
+# 1738833585.630221 - 0.0
+# 1738833588.13208 - 0.0
+# 1738833590.631407 - 0.0
+# 1738833593.1849182 - 0.0
 
-class SR400:  # Mock SR400 class for demonstration
-    """
-    A simplified mock-up of the SR400 photon counter for demonstration purposes.
-    """
-    def __init__(self, address="GPIB0::5::INSTR"):  # Added address parameter
-        """
-        Initializes the SR400 mock object.
-
-        Args:
-            address (str):  The GPIB address of the SR400 (for a real device).
-                            This mock class doesn't use it, but it's included
-                            for compatibility with real SR400 code.
-        """
-        self.address = address
-        self._qa = -1.0  # Initialize QA and QB to -1
-        self._qb = -1.0
-        self.running = False
-        self.tset = 0.1 # default acquisition time
-        self.data_buffer = []
-
-    def start_acquisition(self, tset):
-        """
-        Simulates starting data acquisition.
-
-        Args:
-            tset (float): The gate time (acquisition time per data point) in seconds.
-        """
-        print(f"SR400: Started acquisition with tset={tset}")
-        self.running = True
-        self.tset = tset
-
-    def acquire_data(self):
-        """
-        Simulates acquiring a set of data points (one "experiment").
-
-        Returns:
-            list: A list of (A, B) data pairs, or an empty list if acquisition
-                  is not running.
-        """
-        if not self.running:
-            return []
-
-        # Generate some sample data (replace with actual data reading)
-        num_points = 10 # Number of points *per experiment*
-
-        data = []
-        for _ in range(num_points):
-           # Simulate some noise
-            a_noise = np.random.normal(0, 0.5)  # Mean 0, standard deviation 0.5
-            b_noise = np.random.normal(0, 0.5)
-
-            # Simulate signal (or lack thereof)
-            a_signal = 0  # Example: No signal
-            b_signal = 0
-
-            a_value = a_signal + a_noise
-            b_value = b_signal + b_noise
-
-            data.append((a_value, b_value))
-            time.sleep(self.tset)  # Simulate acquisition time
-
-        self._qa = -1  # Indicate no valid QA, QB during acquisition
-        self._qb = -1
-        return data
-
-    def stop_acquisition(self):
-        """Simulates stopping data acquisition."""
-        print("SR400: Stopped acquisition")
-        self.running = False
-        self._qa = np.random.uniform(1,5)  # Simulate final QA/QB values
-        self._qb = np.random.uniform(1,5)
-
-
-    def query(self, command):
-        """
-        Simulates querying the SR400.  Handles "QA" and "QB" commands.
-
-        Args:
-            command (str): The command string (e.g., "QA", "QB").
-
-        Returns:
-            str:  The simulated response to the command.
-        """
-        command = command.upper()
-        if command == "QA":
-            return str(self._qa)
-        elif command == "QB":
-            return str(self._qb)
-        else:
-            return "Invalid command" # Important: Handle unknown commands
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-
-    # --- Choose Data Source ---
-    # Option 1: Use the mock SR400
-    sr400 = SR400()  # Create an instance of the SR400 class
-    sr400.start_acquisition(tset=0.1)  # Adjust acquisition time as needed
-    app = App(root, data_source=sr400)
-
-    # Option 2: Read from a CSV file
-    # app = App(root, data_source="data.csv")  # Replace with your file
-
-    # Option 3: Read from a space-separated file
-    # app = App(root, data_source="data.txt")
-
-    root.protocol("WM_DELETE_WINDOW", app.on_closing) # Ensure proper closing
-    root.mainloop()
+#if i copy when only 9/10 complite then
+# 1738833573.1388698 - 0.0
+# 1738833575.668996 - 0.0
+# 1738833578.222657 - 0.0
+# 1738833580.639949 - 0.0
+# 1738833583.123729 - 0.0
+# 1738833585.630221 - 0.0
+# 1738833588.13208 - 0.0
+# 1738833590.631407 - 0.0
+# 1738833593.1849182 - 0.0

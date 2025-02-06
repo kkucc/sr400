@@ -3,7 +3,7 @@ import tkinter as tk
 import pyvisa
 import time
 import numpy as np
-import modified_1539reader as reader
+import modified_1519reader as reader
 
 class SR400Device:
     def __init__(self, resource_name):
