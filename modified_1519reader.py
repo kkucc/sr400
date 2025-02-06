@@ -548,39 +548,3 @@ class App:
         self.qa_active = False
         self.qb_active = False
         self.root.destroy() # Destroy the Tkinter window
-    
-
-# still
-# установлен tset: 0.1
-# Experiment 1 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 2 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 3 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 4 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 5 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 6 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 7 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 8 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 9 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 10 completed: A=0.0, B=0.0, Avg=0.0
-# All experiments completed.
-# Last Experiment: A=0.0, B=0.0, Avg=0.0
-# this thing timestamp a,b,5 - 0.0 0.0 on first 2 strings but not the 10th string in 10 line
-# Timestamp, A, B
-# 5 - 0.0 0.0
-# 1738835187.5490768 - 0.0 0.0
-# 1738835190.0631282 - 0.0 0.0
-# 1738835192.5642116 - 0.0 0.0
-# 1738835195.0520792 - 0.0 0.0
-# 1738835197.5530956 - 0.0 0.0
-# 1738835200.0326977 - 0.0 0.0
-# 1738835202.52397 - 0.0 0.0
-# 1738835205.0127232 - 0.0 0.0
