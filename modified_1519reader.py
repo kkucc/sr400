@@ -455,23 +455,14 @@ class App:
 
 
     def process_data_queue(self):
-        """Processes data from the queue (less critical now)."""
+        """Processes data from the queue (for recording)."""
         while not self.data_queue.empty():
             row = self.data_queue.get()
-            # We don't use the individual data points for the main average anymore,
-            # but we still process the queue for recording and other potential uses.
-            numbers = list(map(float, row))
-            formatted_data = " ".join(map(str, numbers))
-            self.data_list.append(formatted_data)
-            if len(self.data_list) > 10:
-                self.data_list.pop(0)
-
+            a, b = row  # Unpack the A and B values from the queue
             if self.is_recording:
-                timestamp = str(time.time())  # Use raw time for recording
+                timestamp = str(time.time())
                 with open(self.recording_file.name, "a") as rec_file:
-                    rec_file.write(f"{timestamp} - {formatted_data}\n")
-
-        # We no longer need to call update_plot here, as it's done per-experiment.
+                    rec_file.write(f"{timestamp} - {a:.1f} {b:.1f}\n") # Only A and B recording
 
     def update_qa_continuously(self):
         """Continuously updates the QA value from the SR400."""
@@ -557,37 +548,3 @@ class App:
         self.qa_active = False
         self.qb_active = False
         self.root.destroy() # Destroy the Tkinter window
-# record_data
-# Timestamp, A, B
-# 2 - 0.0 0.0
-# 1738834522.4325962 - 0.0 0.0
-# 1738834524.9502246 - 0.0 0.0
-# 1738834527.4688778 - 0.0 0.0
-# 1738834529.9954143 - 0.0 0.0
-# 1738834532.473837 - 0.0 0.0
-# 1738834534.9491806 - 0.0 0.0
-# 1738834537.4842525 - 0.0 0.0
-# 1738834539.98164 - 0.0 0.0
-# terimal
-# Experiment 1 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 2 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 3 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 4 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 5 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 6 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 7 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 8 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 9 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 10 completed: A=0.0, B=0.0, Avg=0.0
-# All experiments completed.
-# Last Experiment: A=0.0, B=0.0, Avg=0.0
-# do you use some different data for termonal and file
