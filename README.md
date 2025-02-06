@@ -85,7 +85,7 @@ sr400.write(f"CP2, {self.tset * 10 ** 7 + 1}\n")  # CP - set counter time interv
 
 ```python
 # N periods: 2000. Don't forget to press enter, same with terminal check.
-self.sr400.write(f"NP {self.num_periods}\n")  # (1 - 2000)
+sr400.write(f"NP {self.num_periods}\n")  # (1 - 2000)
 ```
 
 M = 1, `M` is the number of experiments/loops by `N periods` in cycle (start/stop) (no terminal output about this parameter).
