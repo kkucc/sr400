@@ -1,3 +1,4 @@
+#modified_1529reader.py
 import tkinter as tk
 import threading
 import time
@@ -9,20 +10,7 @@ from queue import Queue
 import numpy as np  # Import numpy
 
 class App:
-    """
-    GUI application for reading and displaying data, designed for SR400
-    photon counter but also supports CSV/space-delimited files. Acquires
-    data in "experiments," calculating averages of A/B channels per experiment.
-    QA/QB are read continuously, except during experiment pauses.
-    """
     def __init__(self, root, data_source=None):
-        """
-        Initializes the application.
-
-        Args:
-            root (tk.Tk): Main Tkinter window.
-            data_source (SR400 or str): Data source (SR400 object or file path).
-        """
         self.root = root
         self.root.title("Data from Sensor/Device")
         self.root.configure(bg="#282c34")
@@ -30,7 +18,6 @@ class App:
         self.data_queue = Queue()
         self.experiment_data = {}
         self.current_experiment_num = 0
-
         # --- Constants ---
         self.BUTTON_WIDTH = 7
         self.LABEL_WIDTH = 5
@@ -43,9 +30,9 @@ class App:
         self.VALUE_BG = "#333842"
         self.VALUE_FG = "white"
         self.UPDATE_INTERVAL = 0.1
-        self.MAX_DATA_POINTS = 100  # Not actively used
+        self.PLOT_UPDATE_INTERVAL = 0.1 # Unused now
+        self.MAX_DATA_POINTS = 100
         self.num_experiments = 0
-
         # --- GUI elements ---
         self.create_widgets()
 
@@ -55,26 +42,29 @@ class App:
         self.b_value = 0.0
         self.qa_value = 0.0
         self.qb_value = 0.0
-        self.x_value = 0.0  # Average of the current experiment
+        self.x_value = 0.0  # Average of the *entire* experiment
         self.times = []
         self.a_values = []
         self.b_values = []
-        self.x_values = []
-        self.experiment_averages = []
+        self.x_values = [] # Now stores the average *per experiment*
+        self.qa_values = []
+        self.qb_values = []
+        self.experiment_averages = [] # To store averages for plotting
 
-        self.start_time = 0
+        self.start_time = 0  # Keep track of the *overall* start time
 
         self.is_recording = False
-        self.start_record = False
+        self.start_record = False  # "Record on Start" flag
         self.recording_file = None
         self.reading = False
+        self.last_plot_time = 0 # Unused now
         self.data_thread = None
         self.qa_thread = None
         self.qb_thread = None
-        self.sr400_lock = threading.Lock()
+        self.sr400_lock = threading.Lock() # Lock for SR400 access
         self.qa_active = False
         self.qb_active = False
-        self.is_between_experiments = False
+        self.is_between_experiments = False # Flag for experiment pause
 
         # --- Data Source Handling ---
         if isinstance(self.data_source, str):
@@ -91,8 +81,8 @@ class App:
             self.reading = False
             self.start_button.config(state=tk.NORMAL)
             self.stop_button.config(state=tk.DISABLED)
-            self.start_gui_update()
-            self.qa_active = True
+            self.start_gui_update()  # Start the GUI update loop
+            self.qa_active = True # QA/QB should run continuously
             self.qb_active = True
             self.start_qa_update()
             self.start_qb_update()
@@ -100,6 +90,7 @@ class App:
             print("No data source provided.")
             self.start_button.config(state=tk.DISABLED)
             self.stop_button.config(state=tk.DISABLED)
+
     def create_widgets(self):
         """Creates and places widgets."""
         self.top_frame = tk.Frame(self.root, bg="#282c34")
@@ -236,6 +227,16 @@ class App:
             print(f"Error: File {self.data_source} not found.")
             self.file_available = False
 
+    def validate_input(self, new_value):
+        """Validates input for the Period field (not used)."""
+        try:
+            if new_value == "" or (0.000000001 <= float(new_value) <= 10**2):
+                return True
+            else:
+                return False
+        except ValueError:
+            return False
+
     def validate_m_input(self, new_value):
         """Validates input for the M field (number of experiments)."""
         try:
@@ -272,7 +273,7 @@ class App:
             self.current_experiment_num = 0 # Reset experiment counter
             self.reading = True
             self.start_button.config(state=tk.DISABLED)
-            self.start_button.config(state=tk.NORMAL)
+            self.stop_button.config(state=tk.NORMAL)
             self.qa_active = True # QA/QB should run continuously
             self.qb_active = True
             self.start_qa_update()
@@ -308,8 +309,7 @@ class App:
             self.reading = False
             self.start_button.config(state=tk.NORMAL)
             self.stop_button.config(state=tk.DISABLED)
-            if self.is_recording:
-                self.toggle_recording()  # Stop recording
+            # Removed immediate toggle_recording here - will be called in GUI update loop
 
             if self.data_source and not isinstance(self.data_source, str):
                 # If using SR400, stop acquisition, but keep QA/QB running
@@ -409,8 +409,10 @@ class App:
                         self.update_gui_values()
                         self.update_plot()
                         print(f"Experiment {self.current_experiment_num} completed: A={self.a_value:.1f}, B={self.b_value:.1f}, Avg={self.x_value:.1f}") # Print values to terminal
-                        # Add the average values to the queue, so they get recorded
-                        self.data_queue.put([self.a_value, self.b_value])
+
+                        # Put the raw data into the queue for processing (if needed)
+                        for row in data:
+                            self.data_queue.put(row)
 
 
                     if self.current_experiment_num >= self.num_experiments:
@@ -455,14 +457,23 @@ class App:
 
 
     def process_data_queue(self):
-        """Processes data from the queue (for recording)."""
+        """Processes data from the queue (less critical now)."""
         while not self.data_queue.empty():
             row = self.data_queue.get()
-            a, b = row  # Unpack the A and B values from the queue
+            # We don't use the individual data points for the main average anymore,
+            # but we still process the queue for recording and other potential uses.
+            numbers = list(map(float, row))
+            formatted_data = " ".join(map(str, numbers))
+            self.data_list.append(formatted_data)
+            if len(self.data_list) > 10:
+                self.data_list.pop(0)
+
             if self.is_recording:
-                timestamp = str(time.time())
+                timestamp = str(time.time())  # Use raw time for recording
                 with open(self.recording_file.name, "a") as rec_file:
-                    rec_file.write(f"{timestamp} - {a:.1f} {b:.1f}\n") # Only A and B recording
+                    rec_file.write(f"{timestamp} - {formatted_data}\n")
+
+        # We no longer need to call update_plot here, as it's done per-experiment.
 
     def update_qa_continuously(self):
         """Continuously updates the QA value from the SR400."""
@@ -517,6 +528,8 @@ class App:
     def start_gui_update(self):
         """Starts the periodic GUI update loop."""
         self.process_data_queue()  # Process any data in the queue
+        if not self.reading and self.is_recording: # Check if reading stopped and recording is still on
+            self.toggle_recording() # Stop recording now after queue is processed
         self.root.after(int(self.UPDATE_INTERVAL * 1000), self.start_gui_update)
 
     def toggle_recording(self):
@@ -532,12 +545,10 @@ class App:
             try:
                 filename = f"recorded_data_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
                 self.recording_file = open(filename, "w")
-                # Add a header row to the recording file
-                self.recording_file.write("Timestamp, A, B\n")
                 self.record_button.config(text="Stop Rec")
             except Exception as e:
                 print(f"Error creating file: {e}")
-                self.is_recording = False  # Reset flag if creation failed
+                self.is_recording = False  # Reset flag if file creation failed
                 self.record_button.config(text="Record")
 
     def on_closing(self):
