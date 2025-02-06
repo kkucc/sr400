@@ -142,6 +142,7 @@ pyinstaller --onefile your_script.py
 ```
 
 This will create a `dist` folder containing the `.exe` file.
+
 ---
 ## Voltage Set (Example of Output Data Usage)
 
