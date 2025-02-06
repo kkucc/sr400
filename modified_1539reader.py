@@ -558,3 +558,37 @@ class App:
         self.qa_active = False
         self.qb_active = False
         self.root.destroy() # Destroy the Tkinter window
+
+
+# Experiment 1 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 2 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 3 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 4 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 5 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 6 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 7 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 8 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 9 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 10 completed: A=0.0, B=0.0, Avg=0.0
+# All experiments completed.
+# Last Experiment: A=0.0, B=0.0, Avg=0.0
+# файл recorded data только 9 значений
+# 1738831809.4544919 - 0.0
+# 1738831811.9004695 - 0.0
+# 1738831814.4189026 - 0.0
+# 1738831816.8970594 - 0.0
+# 1738831819.4221084 - 0.0
+# 1738831821.9154868 - 0.0
+# 1738831824.3892946 - 0.0
+# 1738831826.998989 - 0.0
+# 1738831829.527503 - 0.0
+# я вижу что прибору постоянно что-то приходит(когда старт не нажат, но сам QA =-1 что означает что данных нет хотя они должны обновлятся)
