@@ -1,4 +1,4 @@
-# Two version of gui app for reading `sr400` two channel gated photon counter and handling data
+# Two version of gui app for reading via prologix usb GPIB `sr400` two channel gated photon counter and handling data
 
 tho mind warn you that this apps only for `<=2000` number of periods see [manual](https://www.thinksrs.com/downloads/pdfs/manuals/SR400m.pdf), you can resolve this buffer problem by attaching ardiono or any chip for your liking
 
