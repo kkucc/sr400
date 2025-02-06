@@ -446,7 +446,7 @@ class App:
         """Updates the plot with the experiment averages."""
         self.ax.clear()
         if self.experiment_averages:
-            indices = list(range(len(self.experiment_averages)))
+            indices = list(range(1,len(self.experiment_averages)+1))
             self.ax.plot(indices, self.experiment_averages, marker='o', linestyle='-', color='green')
 
         self.ax.set_title('Data', fontsize=16)
