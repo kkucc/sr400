@@ -2,7 +2,7 @@ import tkinter as tk
 import pyvisa
 import time
 import numpy as np
-import modified_1527reader as reader 
+import modified_1529reader as reader 
 
 class SR400Device:
     def __init__(self, resource_name):
@@ -20,7 +20,7 @@ class SR400Device:
             time.sleep(1)
             self.sr400.write("CR\n")
             self.sr400.write("CS\n")
-            time.sleep(self.tset * (self.num_periods + 1)+5)
+            time.sleep(self.tset * (self.num_periods + 1)+1)
 
             fa = []
             self.sr400.write("EA\n")

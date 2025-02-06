@@ -488,7 +488,7 @@ class App:
             if self.data_source and self.qa_active and not self.is_between_experiments:
                 try:
                     with self.sr400_lock:  # Acquire lock before SR400 access
-                        time.sleep(0.2)  # Short pause
+                        time.sleep(0.1)  # Short pause
                         self.qa_value = float(self.data_source.sr400.query("QA").strip('\r\n'))
                         time.sleep(0.2)
                         self.update_gui_values() # Update after getting QA
@@ -503,7 +503,7 @@ class App:
             if self.data_source and self.qb_active and not self.is_between_experiments:
                 try:
                     with self.sr400_lock:
-                        time.sleep(0.2)
+                        time.sleep(0.1)
                         self.qb_value = float(self.data_source.sr400.query("QB").strip('\r\n'))
                         time.sleep(0.2)
                         self.update_gui_values()
