@@ -20,7 +20,7 @@ class SR400Device:
             time.sleep(1)
             self.sr400.write("CR\n")
             self.sr400.write("CS\n")
-            time.sleep()
+            time.sleep(20)
 
             fa = []
             self.sr400.write("EA\n")
