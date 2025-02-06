@@ -409,10 +409,8 @@ class App:
                         self.update_gui_values()
                         self.update_plot()
                         print(f"Experiment {self.current_experiment_num} completed: A={self.a_value:.1f}, B={self.b_value:.1f}, Avg={self.x_value:.1f}") # Print values to terminal
-
-                        # Put the raw data into the queue for processing (if needed)
-                        for row in data:
-                            self.data_queue.put(row)
+                        # Add the average values to the queue, so they get recorded
+                        self.data_queue.put([self.a_value, self.b_value])
 
 
                     if self.current_experiment_num >= self.num_experiments:
@@ -458,13 +456,22 @@ class App:
 
     def process_data_queue(self):
         """Processes data from the queue (less critical now)."""
-        # The individual rows don't matter anymore. We record the average values.
-        if self.is_recording:
-            timestamp = str(time.time())  # Use raw time for recording
-            with open(self.recording_file.name, "a") as rec_file:
-                rec_file.write(f"{timestamp}, {self.a_value:.6f}, {self.b_value:.6f}\n") #record A and B instead
+        while not self.data_queue.empty():
+            row = self.data_queue.get()
+            # We don't use the individual data points for the main average anymore,
+            # but we still process the queue for recording and other potential uses.
+            numbers = list(map(float, row))
+            formatted_data = " ".join(map(str, numbers))
+            self.data_list.append(formatted_data)
+            if len(self.data_list) > 10:
+                self.data_list.pop(0)
 
-    # We no longer need to call update_plot here, as it's done per-experiment.
+            if self.is_recording:
+                timestamp = str(time.time())  # Use raw time for recording
+                with open(self.recording_file.name, "a") as rec_file:
+                    rec_file.write(f"{timestamp} - {formatted_data}\n")
+
+        # We no longer need to call update_plot here, as it's done per-experiment.
 
     def update_qa_continuously(self):
         """Continuously updates the QA value from the SR400."""
@@ -539,7 +546,7 @@ class App:
                 self.record_button.config(text="Stop Rec")
             except Exception as e:
                 print(f"Error creating file: {e}")
-                self.is_recording = False  # Reset flag if file creation failed
+                self.is_recording = False  # Reset flag if creation failed
                 self.record_button.config(text="Record")
 
     def on_closing(self):
@@ -549,8 +556,4 @@ class App:
             self.data_file.close()  # Close data file if open
         self.qa_active = False
         self.qb_active = False
-        if self.recording_file: # added to avoid errors at closing without recording
-            self.recording_file.flush() # added to be sure that all data written
-            self.recording_file.close() # close it properly
-
         self.root.destroy() # Destroy the Tkinter window
