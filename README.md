@@ -34,7 +34,7 @@ open `prologix.exe` in `app via lib`. Wich is not my app and defenetly works for
   inst = rm.open_resource('GPIB0::23::INSTR')
   ```
 
-  ![1738852502800](images/readme/1738852502800.png)
+  ![open](first steps/open.png)
   `main8.py` will open this gui app lets go trough it a little bit
 
   ```python
@@ -51,7 +51,7 @@ M = 1,`M` number of experiments /loops by `N periods ` in cycle(start/stop)(no t
 
 `Avg` - average value from 1 M( on plot you see green avg dots)
 
-> [ !CAUTION]
+> [!CAUTION]
 > **Dont press `start on record botton` cuz' its logic broken**
 
 ```python
@@ -62,14 +62,14 @@ data_source.query("QB").strip('\r\n') # in main8 it's sr4
 same with B, QB
 ```
 
-![1738852519093](images/readme/1738852519093.png)
+![start](first steps/start.png)
 
 As you can see here botton `start` pressed and `stop` , `record` are avialiable to press. You should press `record  ` by yourself, sorry tho
 
 You can see how terminal output copespond to gui(plot,values) output
 
 > recorded_data
-> ![1738852527161](images/readme/1738852527161.png)
+> ![recorded_data](first steps/recorded_data.png)
 > how to handle this output you can see in `volatge set` ///ссылку на ридми параграф или на сам файл?
 
 ## app via QT1
@@ -82,7 +82,7 @@ pip install pyside6
 
 quite similar tho its one .py file
 
-![1738867295191](images/readme/1738867295191.png)
+![qT](first steps/qT.png)
 
 ## how to make .exe
 
