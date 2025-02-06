@@ -557,3 +557,37 @@ class App:
         self.qa_active = False
         self.qb_active = False
         self.root.destroy() # Destroy the Tkinter window
+# record_data
+# Timestamp, A, B
+# 2 - 0.0 0.0
+# 1738834522.4325962 - 0.0 0.0
+# 1738834524.9502246 - 0.0 0.0
+# 1738834527.4688778 - 0.0 0.0
+# 1738834529.9954143 - 0.0 0.0
+# 1738834532.473837 - 0.0 0.0
+# 1738834534.9491806 - 0.0 0.0
+# 1738834537.4842525 - 0.0 0.0
+# 1738834539.98164 - 0.0 0.0
+# terimal
+# Experiment 1 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 2 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 3 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 4 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 5 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 6 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 7 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 8 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 9 completed: A=0.0, B=0.0, Avg=0.0
+# установлен tset: 0.1
+# Experiment 10 completed: A=0.0, B=0.0, Avg=0.0
+# All experiments completed.
+# Last Experiment: A=0.0, B=0.0, Avg=0.0
+# do you use some different data for termonal and file
