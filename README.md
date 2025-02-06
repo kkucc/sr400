@@ -119,7 +119,7 @@ You can see how the terminal output corresponds to the GUI (plot, values) output
 
 Used Qt Designer.
 
-all previous(lib and soft) should be download to and
+all previous(lib and soft) should be download too and
 
 ```powershell
 pip install pyside6
