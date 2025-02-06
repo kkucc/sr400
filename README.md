@@ -93,7 +93,7 @@ M = 1, `M` is the number of experiments/loops by `N periods` in cycle (start/sto
 `Avg` - average value from 1 M (on the plot, you see green avg dots).
 
 > [!CAUTION]
-> **Don't press the `start on record button` 'cause it's logic is broken.**
+> **Don't press the `start on record button` 'cause its logic is broken.**
 
 ```python
 # A - last digit in A channel buffer (when the cycle was stopped).
