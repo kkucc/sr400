@@ -5,10 +5,48 @@
 Tho, mind you that this app is only for `<= 2000` number of periods. See the [manual](https://www.thinksrs.com/downloads/pdfs/manuals/SR400m.pdf). You can resolve this buffer problem by attaching an Arduino or any chip of your liking
 
 # GUI App
-
+---
 ## First Steps
+---
+ Git Beginner's Guide
+#### 1. Install Git
+install Git from the [official site](https://git-scm.com/downloads)
 
+#### 2. Clone the Repo(Open your terminal)
+```bash
+git clone https://github.com/kkucc/sr400.git
+```
+#### 3. Go to the Repo(Change cd ... )
+```bash
+cd sr400
+```
+#### 4. Check Status
+```bash
+git status
+```
+#### 5. Get Latest Changes
+```bash
+git pull
+```
+#### 6. Create a New Branch (If You Forked)
+If you wanna work on something new, first fork the repo on GitHub, then create a branch,(this keeps your changes separate.):
+```bash
+git checkout -b your_branch_name
+```
+#### 7. Add Your Changes(Stage your changes)
+```bash
+git add .
+```
+#### 8. Commit Your Changes
+```bash
+git commit -m "Your commit message"
+```
+#### 9. Push Your Changes(Send your changes to your forked repo)
+```bash
+git push origin your_branch_name
+```
 Open `prologix.exe` in `app via lib`. Which is not my app and definitely works for easy communication setup
+---
 
 ## Via Lib
 
@@ -76,7 +114,7 @@ You can see how the terminal output corresponds to the GUI (plot, values) output
 > ![recorded_data](first%20steps/recorded_data.png)
 > 
 > How to handle this output you can see in `voltage set`.
-
+---
 ## App via QT1
 
 Used Qt Designer.
@@ -88,7 +126,7 @@ pip install pyside6
 Quite similar tho, it's one .py file.
 
 ![qT](first%20steps/qT.png)
-
+---
 ## How to Make .exe
 
 **Install PyInstaller**: You can use PyInstaller to convert your Python script into an executable. First, install it using pip:
@@ -104,7 +142,7 @@ pyinstaller --onefile your_script.py
 ```
 
 This will create a `dist` folder containing the `.exe` file.
-
+---
 ## Voltage Set (Example of Output Data Usage)
 
 ![voltage](/voltage%20set/pigraph.png)
