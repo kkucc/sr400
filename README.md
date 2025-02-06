@@ -1,93 +1,95 @@
-# Two version of gui app for reading via prologix usb GPIB `sr400` two channel gated photon counter and handling data
+---
 
-tho mind warn you that this apps only for `<=2000` number of periods see [manual](https://www.thinksrs.com/downloads/pdfs/manuals/SR400m.pdf), you can resolve this buffer problem by attaching ardiono or any chip for your liking
+# Two Versions of GUI App for Reading via Prologix USB GPIB `SR400` Two-Channel Gated Photon Counter and Handling Data
 
-# gui app
+Tho, mind you that this app is only for `<= 2000` number of periods. See the [manual](https://www.thinksrs.com/downloads/pdfs/manuals/SR400m.pdf). You can resolve this buffer problem by attaching an Arduino or any chip of your liking
 
-## first steps
+# GUI App
 
-open `prologix.exe` in `app via lib`. Wich is not my app and defenetly works for eazy comunication setup
+## First Steps
 
-## Via lib
+Open `prologix.exe` in `app via lib`. Which is not my app and definitely works for easy communication setup
 
-* Libs and soft to downoad
-  before lib installation you need to visit [ni-visa](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html#558610) for:
+## Via Lib
+
+* **Libs and Software to Download**  
+  Before lib installation, you need to visit [NI-VISA](https://www.ni.com/en/support/downloads/drivers/download.ni-visa.html#558610) for:
 
   ```powershell
   pip install pyvisa
   ```
 
-  actually i dont think there are so many(some of them are dependencies) but yk..
+  Actually, I don’t think there are so many (some of them are dependencies), but yk...
 
   ```powershell
-   pip install numpy, tkinter,matplotlib, datetime, csv,threading, time, Queue
+  pip install numpy tkinter matplotlib datetime csv threading time queue
   ```
-* ### **How to use**
 
+* ### **How to Use**
 
   ```python
-  pp#you need to know your PORT addr (mine is 5)`
+  # You need to know your PORT address (mine is 5)
   rm.open_resource('ASRL5')
-  #also you need to know your gpib addr( mine is 23)
-  # i used 1 time prologix.exe wich is reaaly helpful for first steps, 
-  #but also should works
+  # Also, you need to know your GPIB address (mine is 23)
+  # I used prologix.exe one time, which is really helpful for first steps,
+  # but it should also work.
   inst = rm.open_resource('GPIB0::23::INSTR')
   ```
 
- ![open](first%20steps/open.png)
- 
-  `main8.py` will open this gui app lets go trough it a little bit
+![open](first%20steps/open.png)
 
-  ```python
-  #Tset(s): 0.001, if you wanna change it dont forget to use enter( you can check your self in terminal)
-  sr400.write(f"CP2, {self.tset * 10 ** 7 + 1}\n")  # CP - set counter i time interval for 1 period(N) from 10**(-9) to 100 seconds
-  ```
-
-  ```python
-  # N periods: 2000, dont forget to press enter,same with terminal check
-  self.sr400.write(f"NP {self.num_periods}\n") # (1 - 2000)
-  ```
-
-M = 1,`M` number of experiments /loops by `N periods ` in cycle(start/stop)(no terminal output about this parameter)
-
-`Avg` - average value from 1 M( on plot you see green avg dots)
-
-> [!CAUTION]
-> **Dont press `start on record botton` cuz' its logic broken**
+`main8.py` will open this GUI app. Let's go through it a little bit.
 
 ```python
-#A - last didgit in A channal buffer(when cycle was stoped)
-#QA - periodic query from with some time.sleep() 
-#from 1519reader.py
-data_source.query("QB").strip('\r\n') # in main8 it's sr4
-same with B, QB
+# Tset(s): 0.001. If you wanna change it, don't forget to use enter (you can check yourself in the terminal).
+sr400.write(f"CP2, {self.tset * 10 ** 7 + 1}\n")  # CP - set counter time interval for 1 period (N) from 10**(-9) to 100 seconds.
+```
+
+```python
+# N periods: 2000. Don't forget to press enter, same with terminal check.
+self.sr400.write(f"NP {self.num_periods}\n")  # (1 - 2000)
+```
+
+M = 1, `M` is the number of experiments/loops by `N periods` in cycle (start/stop) (no terminal output about this parameter).
+
+`Avg` - average value from 1 M (on the plot, you see green avg dots).
+
+> [!CAUTION]
+> **Don't press the `start on record button` 'cause it's logic is broken.**
+
+```python
+# A - last digit in A channel buffer (when the cycle was stopped).
+# QA - periodic query with some time.sleep() 
+# from 1519reader.py
+data_source.query("QB").strip('\r\n')  # in main8 it's sr4
+# Same with B, QB.
 ```
 
 ![start](first%20steps/start.png)
 
-As you can see here botton `start` pressed and `stop` , `record` are avialiable to press. You should press `record  ` by yourself, sorry tho
+As you can see here, the `start` button is pressed, and `stop` and `record` are available to press. You should press `record` by yourself, sorry tho.
 
-You can see how terminal output copespond to gui(plot,values) output
+You can see how the terminal output corresponds to the GUI (plot, values) output.
 
-> recorded_data
+> Recorded Data
 > 
 > ![recorded_data](first%20steps/recorded_data.png)
 > 
-> how to handle this output you can see in `volatge set`
+> How to handle this output you can see in `voltage set`.
 
-## app via QT1
+## App via QT1
 
-used Qt Designer
+Used Qt Designer.
 
 ```powershell
 pip install pyside6
 ```
 
-quite similar tho its one .py file
+Quite similar tho, it's one .py file.
 
 ![qT](first%20steps/qT.png)
 
-## how to make .exe
+## How to Make .exe
 
 **Install PyInstaller**: You can use PyInstaller to convert your Python script into an executable. First, install it using pip:
 
@@ -103,9 +105,10 @@ pyinstaller --onefile your_script.py
 
 This will create a `dist` folder containing the `.exe` file.
 
-## voltage set(example of output data usage)
+## Voltage Set (Example of Output Data Usage)
 
 ![voltage](/voltage%20set/pigraph.png)
-For colibration system( via dark counts and gui app get this graph)
 
-idk what is happening here(175-220mV), but after this decided to set sr400 at `DISC lvl=+250 mV` (where limit is `-300 -- + 300`)
+For calibration system (via dark counts and GUI app, get this graph).
+
+Idk what is happening here (175-220mV), but after this, I decided to set the SR400 at `DISC lvl=+250 mV` (where the limit is `-300 -- +300`).
