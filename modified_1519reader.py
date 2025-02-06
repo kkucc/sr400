@@ -1,4 +1,3 @@
-#modified_1529reader.py
 import tkinter as tk
 import threading
 import time
@@ -10,15 +9,19 @@ from queue import Queue
 import numpy as np  # Import numpy
 
 class App:
+    """
+    GUI application for reading and displaying data, designed for SR400
+    photon counter but also supports CSV/space-delimited files. Acquires
+    data in "experiments," calculating averages of A/B channels per experiment.
+    QA/QB are read continuously, except during experiment pauses.
+    """
     def __init__(self, root, data_source=None):
         """
         Initializes the application.
 
         Args:
-            root (tk.Tk): The main Tkinter window.
-            data_source (SR400 or str, optional):  The data source.  Can be an
-                SR400 object (for live data) or a file path (string) for reading
-                from a file. Defaults to None.
+            root (tk.Tk): Main Tkinter window.
+            data_source (SR400 or str): Data source (SR400 object or file path).
         """
         self.root = root
         self.root.title("Data from Sensor/Device")
@@ -40,38 +43,38 @@ class App:
         self.VALUE_BG = "#333842"
         self.VALUE_FG = "white"
         self.UPDATE_INTERVAL = 0.1
-        self.MAX_DATA_POINTS = 100  # Not actively used, but kept for potential future use
+        self.MAX_DATA_POINTS = 100  # Not actively used
         self.num_experiments = 0
 
         # --- GUI elements ---
         self.create_widgets()
 
         # --- Initialization ---
-        self.data_list = []  # For storing limited data for display/recording
+        self.data_list = []
         self.a_value = 0.0
         self.b_value = 0.0
         self.qa_value = 0.0
         self.qb_value = 0.0
         self.x_value = 0.0  # Average of the current experiment
-        self.times = []        # Not actively used now, consider removing
-        self.a_values = []    # For plotting A averages
-        self.b_values = []    # For plotting B averages
-        self.x_values = []    # For plotting X (overall) averages - Now per-experiment
-        self.experiment_averages = [] # To store averages for plotting
+        self.times = []
+        self.a_values = []
+        self.b_values = []
+        self.x_values = []
+        self.experiment_averages = []
 
-        self.start_time = 0   # Overall start time (for SR400)
+        self.start_time = 0
 
         self.is_recording = False
-        self.start_record = False  # "Record on Start" flag
+        self.start_record = False
         self.recording_file = None
         self.reading = False
         self.data_thread = None
         self.qa_thread = None
         self.qb_thread = None
-        self.sr400_lock = threading.Lock() # Lock for SR400 access
+        self.sr400_lock = threading.Lock()
         self.qa_active = False
         self.qb_active = False
-        self.is_between_experiments = False # Flag for experiment pause
+        self.is_between_experiments = False
 
         # --- Data Source Handling ---
         if isinstance(self.data_source, str):
@@ -84,12 +87,12 @@ class App:
                 print(f"File {self.data_source} not found.")
                 self.start_button.config(state=tk.NORMAL)
                 self.stop_button.config(state=tk.DISABLED)
-        elif self.data_source:  # Assuming an SR400 object
-            self.reading = False  # Start with reading off
+        elif self.data_source:
+            self.reading = False
             self.start_button.config(state=tk.NORMAL)
             self.stop_button.config(state=tk.DISABLED)
-            self.start_gui_update()  # Start the GUI update loop
-            self.qa_active = True # QA/QB should run continuously
+            self.start_gui_update()
+            self.qa_active = True
             self.qb_active = True
             self.start_qa_update()
             self.start_qb_update()
@@ -269,7 +272,7 @@ class App:
             self.current_experiment_num = 0 # Reset experiment counter
             self.reading = True
             self.start_button.config(state=tk.DISABLED)
-            self.stop_button.config(state=tk.NORMAL)
+            self.start_button.config(state=tk.NORMAL)
             self.qa_active = True # QA/QB should run continuously
             self.qb_active = True
             self.start_qa_update()
@@ -455,22 +458,13 @@ class App:
 
     def process_data_queue(self):
         """Processes data from the queue (less critical now)."""
-        while not self.data_queue.empty():
-            row = self.data_queue.get()
-            # We don't use the individual data points for the main average anymore,
-            # but we still process the queue for recording and other potential uses.
-            numbers = list(map(float, row))
-            formatted_data = " ".join(map(str, numbers))
-            self.data_list.append(formatted_data)
-            if len(self.data_list) > 10:
-                self.data_list.pop(0)
+        # The individual rows don't matter anymore. We record the average values.
+        if self.is_recording:
+            timestamp = str(time.time())  # Use raw time for recording
+            with open(self.recording_file.name, "a") as rec_file:
+                rec_file.write(f"{timestamp}, {self.a_value:.6f}, {self.b_value:.6f}\n") #record A and B instead
 
-            if self.is_recording:
-                timestamp = str(time.time())  # Use raw time for recording
-                with open(self.recording_file.name, "a") as rec_file:
-                    rec_file.write(f"{timestamp} - {formatted_data}\n")
-
-        # We no longer need to call update_plot here, as it's done per-experiment.
+    # We no longer need to call update_plot here, as it's done per-experiment.
 
     def update_qa_continuously(self):
         """Continuously updates the QA value from the SR400."""
@@ -555,48 +549,8 @@ class App:
             self.data_file.close()  # Close data file if open
         self.qa_active = False
         self.qb_active = False
+        if self.recording_file: # added to avoid errors at closing without recording
+            self.recording_file.flush() # added to be sure that all data written
+            self.recording_file.close() # close it properly
+
         self.root.destroy() # Destroy the Tkinter window
-
-# Experiment 1 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 2 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 3 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 4 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 5 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 6 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 7 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 8 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 9 completed: A=0.0, B=0.0, Avg=0.0
-# установлен tset: 0.1
-# Experiment 10 completed: A=0.0, B=0.0, Avg=0.0
-# All experiments completed.
-# Last Experiment: A=0.0, B=0.0, Avg=0.0
-# #recorded_data file for M =10
-# Timestamp, A, B
-# 8 - 0.0
-# 1738833575.668996 - 0.0
-# 1738833578.222657 - 0.0
-# 1738833580.639949 - 0.0
-# 1738833583.123729 - 0.0
-# 1738833585.630221 - 0.0
-# 1738833588.13208 - 0.0
-# 1738833590.631407 - 0.0
-# 1738833593.1849182 - 0.0
-
-#if i copy when only 9/10 complite then
-# 1738833573.1388698 - 0.0
-# 1738833575.668996 - 0.0
-# 1738833578.222657 - 0.0
-# 1738833580.639949 - 0.0
-# 1738833583.123729 - 0.0
-# 1738833585.630221 - 0.0
-# 1738833588.13208 - 0.0
-# 1738833590.631407 - 0.0
-# 1738833593.1849182 - 0.0
