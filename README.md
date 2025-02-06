@@ -34,7 +34,8 @@ open `prologix.exe` in `app via lib`. Wich is not my app and defenetly works for
   inst = rm.open_resource('GPIB0::23::INSTR')
   ```
 
-  ![open](first steps/open.png)
+ ![open](first%20steps/open.png)
+ 
   `main8.py` will open this gui app lets go trough it a little bit
 
   ```python
@@ -44,7 +45,7 @@ open `prologix.exe` in `app via lib`. Wich is not my app and defenetly works for
 
   ```python
   # N periods: 2000, dont forget to press enter,same with terminal check
-  self.sr400.write(f"NP {self.num_periods}\n") (1 - 2000)
+  self.sr400.write(f"NP {self.num_periods}\n") # (1 - 2000)
   ```
 
 M = 1,`M` number of experiments /loops by `N periods ` in cycle(start/stop)(no terminal output about this parameter)
@@ -62,15 +63,17 @@ data_source.query("QB").strip('\r\n') # in main8 it's sr4
 same with B, QB
 ```
 
-![start](first steps/start.png)
+![start](first%20steps/start.png)
 
 As you can see here botton `start` pressed and `stop` , `record` are avialiable to press. You should press `record  ` by yourself, sorry tho
 
 You can see how terminal output copespond to gui(plot,values) output
 
 > recorded_data
-> ![recorded_data](first steps/recorded_data.png)
-> how to handle this output you can see in `volatge set` ///ссылку на ридми параграф или на сам файл?
+> 
+> ![recorded_data](first%20steps/recorded_data.png)
+> 
+> how to handle this output you can see in `volatge set`
 
 ## app via QT1
 
@@ -82,7 +85,7 @@ pip install pyside6
 
 quite similar tho its one .py file
 
-![qT](first steps/qT.png)
+![qT](first%20steps/qT.png)
 
 ## how to make .exe
 
@@ -102,7 +105,7 @@ This will create a `dist` folder containing the `.exe` file.
 
 ## voltage set(example of output data usage)
 
-![voltage](images/readme/1738850634567.png)
+![voltage](/voltage%20set/pigraph.png)
 For colibration system( via dark counts and gui app get this graph)
 
 idk what is happening here(175-220mV), but after this decided to set sr400 at `DISC lvl=+250 mV` (where limit is `-300 -- + 300`)
