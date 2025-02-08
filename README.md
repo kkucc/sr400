@@ -79,12 +79,14 @@ Open `prologix.exe` in `app via lib`. Which is not my app and definitely works f
 `main8.py` will open this GUI app. Let's go through it a little bit.
 
 ```python
-# Tset(s): 0.001. If you wanna change it, don't forget to use enter (you can check yourself in the terminal).
+# Tset(s): 0.001. If you wanna change it,
+# don't forget to use enter (you can check yourself in the terminal).
 sr400.write(f"CP2, {self.tset * 10 ** 7 + 1}\n")  # CP - set counter time interval for 1 period (N) from 10**(-9) to 100 seconds.
 ```
 
 ```python
-# N periods: 2000. Don't forget to press enter, same with terminal check.
+# N periods: 2000.
+#Don't forget to press enter, same with terminal check.
 sr400.write(f"NP {self.num_periods}\n")  # (1 - 2000)
 ```
 
@@ -99,7 +101,7 @@ M = 1, `M` is the number of experiments/loops by `N periods` in cycle (start/sto
 # A - last digit in A channel buffer (when the cycle was stopped).
 # QA - periodic query with some time.sleep() 
 # from 1519reader.py
-data_source.query("QB").strip('\r\n')  # in main8 it's sr4
+data_source.query("QA").strip('\r\n')  # in main8 it's sr4
 # Same with B, QB.
 ```
 
@@ -117,7 +119,7 @@ You can see how the terminal output corresponds to the GUI (plot, values) output
 ---
 ## App via QT1
 
-Used Qt Designer.
+used Qt Designer.
 
 all previous(lib and soft) should be download too and
 
@@ -125,7 +127,7 @@ all previous(lib and soft) should be download too and
 pip install pyside6
 ```
 
-Quite similar tho, it's one .py file.
+Quite similar tho, it's .py file + main.ui .
 
 ![qT](first%20steps/qT.png)
 ---
@@ -140,7 +142,7 @@ pip install pyinstaller
 Navigate to the directory containing your Python script and run:
 
 ```bash
-pyinstaller --onefile your_script.py
+pyinstaller --onefile main8.py
 ```
 
 This will create a `dist` folder containing the `.exe` file.
@@ -150,6 +152,20 @@ This will create a `dist` folder containing the `.exe` file.
 
 ![voltage](/voltage%20set/pigraph.png)
 
-For calibration system (via dark counts and GUI app, get this graph).
+For calibration [system](#system) (via dark counts and GUI app, get this graph).
 
 Idk what is happening here (175-220mV), but after this, I decided to set the SR400 at `DISC lvl=+250 mV` (where the limit is `-300 -- +300`).
+
+## system
+
+`sr400`
+
+![sr400](/voltage%20set/sr400.jpg)
+
+`EG&G Photon Counter`
+
+![phtn](/voltage%20set/phtn.jpg)
+
+`gui`
+
+![graphexp](/voltage%20set/graphexp.jpg)
