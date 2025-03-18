@@ -40,12 +40,12 @@ class WorkerLive(QtCore.QObject):
             try:
                 self.control_sr400.write_com("CR")
                 Fa = self.control_sr400.sr4.query("FA")
-                time.sleep(self.t_set + 0.01)
+                time.sleep(self.t_set + 0.001)
                 Fa = list(map(int, Fa.rstrip().split(',')))
 
                 self.control_sr400.write_com("CR")
                 Fb = self.control_sr400.sr4.query("FB")
-                time.sleep(self.t_set + self.dwell_time + 0.01)
+                time.sleep(self.t_set + self.dwell_time + 0.001)
                 Fb = list(map(int, Fb.rstrip().split(',')))
                 
                 self.progress.emit((Fa, Fb))
@@ -165,9 +165,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ydata2 = []  # для канала B
         self.counter = 0
 
-        # Настраиваем таймер для обновления графика каждые 1000 мс (1 секунда)
+        # Настраиваем таймер для обновления графика каждые 500 мс (0.5 секунд)
         self.timer = QtCore.QTimer(self)
-        self.timer.setInterval(1000)
+        self.timer.setInterval(500)
         self.timer.timeout.connect(self.update_plot)
         self.timer.start()
 
@@ -291,7 +291,7 @@ class MainWindow(QtWidgets.QMainWindow):
             dataA, dataB = data
             self.ydata.append(dataA[0])
             self.ydata2.append(dataB[0])
-            print("Прогресс/результат:", self.ydata, len(self.ydata))
+            # print("Прогресс/результат:", self.ydata, len(self.ydata))
         else:
             print("Работа остановлена до завершения измерения.")
         # Обнуляем ссылки, чтобы поток и объект worker могли быть удалены сборщиком мусора
@@ -318,7 +318,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ydata.extend(dataA)
             self.ydata2.extend(dataB)
             self.xdata = list(range(1, len(self.ydata) + 1))
-            print("Прогресс/результат:", self.ydata, len(self.ydata))
+            # print("Прогресс/результат:", self.ydata, len(self.ydata))
             if self.file_write:
                 # Получаем текущее время
                 current_time = datetime.datetime.now()
