@@ -7,7 +7,7 @@ pyvisa.log_to_screen = True
 try:
     rm=pyvisa.ResourceManager()#"@ni"
     print("ok")
-    sr4 = rm.open_resource('ASRL5::INSTR')
+    sr4 = rm.open_resource('ASRL8::INSTR')
     #inst = rm.open_resource('GPIB0::23::INSTR')#12 devise addres и я хз какой он
     #sr4.write("*IDN?")#реакция
     #sr4.write("PL 2,4\n")
@@ -18,9 +18,9 @@ try:
     #sr4.write("CR","\n")
     #sr4.write("CP2,"+str(Tset),"\n")
     #Data points in scan = 100 N PERIODS = 100 # NN Read current count period number or scan position # NP m Set Number of PERIODS in a scan to 1 <= m <= 2000.
-    Cur_Num_ofPeriods=sr4.query("NN")#ругается когда добавляю '\n'
-    print(Cur_Num_ofPeriods,"Cur_Num_ofPeriods")
-    NumofPeriods = int(Cur_Num_ofPeriods.rstrip())
+    # Cur_Num_ofPeriods=sr4.query("NN")#ругается когда добавляю '\n'
+    # print(Cur_Num_ofPeriods,"Cur_Num_ofPeriods")
+    # NumofPeriods = int(Cur_Num_ofPeriods.rstrip())
     #NumofPeriods=5
    # sr4.write("NP"+" "+str(NumofPeriods))
       # NE j Set end of scan mode to mode j; START(1) or STOP (0). #CS Count start, same as START key.# CH Count pause, same as STOP key while counting.# CR Count reset, same as STOP key pressed twice. 
@@ -50,39 +50,39 @@ try:
 
 
 
-    sr4.write("CR\n")
-    #sr4.write("CS\n") #.strip().splitlines()
-    time.sleep(1)
-    print("done")
-    fa=sr4.query("QA ")
-    # fa=[]
-    # sr4.write("EA\n")
-    # for iter_i in range(NumofPeriods):
-    #     fa.append(list(map(int, sr4.read().rstrip().split(','))))
-
-    print(repr(fa))
-    # print('split')
-    
-    # fb=[]
-    # time.sleep(0.1)
-    # sr4.write("EB\n")
-    # time.sleep(0.1)
-    # for iter_i in range(NumofPeriods):
-    #     fb.append(list(map(int, sr4.read().rstrip().split(','))))
-
-    # print(*fb)
     # sr4.write("CR\n")
+    # #sr4.write("CS\n") #.strip().splitlines()
+    # time.sleep(1)
+    # print("done")
+    # fa=sr4.query("QA ")
+    # # fa=[]
+    # # sr4.write("EA\n")
+    # # for iter_i in range(NumofPeriods):
+    # #     fa.append(list(map(int, sr4.read().rstrip().split(','))))
 
-    #print(sig)
-    #print(type(sig[2]))
-    # time.sleep(0.1)
-    #print(reade,"Read current PORT")
-    #sr4.write("NE"+" "+"0","\n")
-    # PZ k Read current PORT k (1 or 2) LVL (during scan).
-    # DZ i Read current DISC i LVL (during scan). ?
-    #response = inst.read()#'\n'
-    #print(response)
-    #sr4.write('CR')
+    # print(repr(fa))
+    # # print('split')
+    
+    # # fb=[]
+    # # time.sleep(0.1)
+    # # sr4.write("EB\n")
+    # # time.sleep(0.1)
+    # # for iter_i in range(NumofPeriods):
+    # #     fb.append(list(map(int, sr4.read().rstrip().split(','))))
+
+    # # print(*fb)
+    # # sr4.write("CR\n")
+
+    # #print(sig)
+    # #print(type(sig[2]))
+    # # time.sleep(0.1)
+    # #print(reade,"Read current PORT")
+    # #sr4.write("NE"+" "+"0","\n")
+    # # PZ k Read current PORT k (1 or 2) LVL (during scan).
+    # # DZ i Read current DISC i LVL (during scan). ?
+    # #response = inst.read()#'\n'
+    # #print(response)
+    # #sr4.write('CR')
     sr4.close()
 
 
