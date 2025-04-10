@@ -101,7 +101,7 @@ class SerialDeviceController:
 
         try:
             # --- Parameters ---
-            hz = params.get('hz', 1000) # Default Hz if not provided
+            hz = params.get('hz', 1) # Default Hz if not provided
             wavefront = params.get('wavefront', 6) # Default wavefront if not provided
             start_offset_w17 = params.get('start_offset_w17', 950)
             start_offset_w18 = params.get('start_offset_w18', 900)
@@ -113,10 +113,10 @@ class SerialDeviceController:
 
             # --- Initial Configuration ---
             # Example: Set Hz (assuming :w13 controls it)
-            # self.send_command(f":w13={hz},0.", delay=0.02)
-            # log_callback(f"Set Hz (w13): {hz}")
+            self.send_command(f":w13={hz},0.", delay=0.02)
+            log_callback(f"Set Hz (w13): {hz}")
             # Example: Set another Hz related register if needed
-            # self.send_command(f":w14=18,0.", delay=0.02) # Example static value
+            self.send_command(f":w14=18,0.", delay=0.02) # Example static value
 
             self.send_command(":w60=0,0.", delay=0.02) # Fixed init
             log_callback("Sent: :w60=0,0.")
@@ -260,7 +260,7 @@ class SerialControlApp:
 
         ttk.Label(param_frame, text="Hz (e.g., w13):").grid(row=param_row, column=param_col1, padx=5, pady=3, sticky="w")
         self.hz_entry = ttk.Entry(param_frame, width=10)
-        self.hz_entry.insert(0, "1000")
+        self.hz_entry.insert(0, "1")
         self.hz_entry.grid(row=param_row, column=param_col1+1, padx=5, pady=3)
         param_row += 1
 
