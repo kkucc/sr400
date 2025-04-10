@@ -12,8 +12,8 @@ ser = serial.Serial(
 try:
     if ser.is_open:
         # ser.open()
-#         ser.write(b":w13=1000,0.\r\n")#Hz
-#         time.sleep(0.02)
+        ser.write(b":w13=1060,0.\r\n")#Hz
+        time.sleep(0.02)
 #         ser.write(b":w14=18,0.\r\n")#Hz
 #         time.sleep(0.02)
 #         print("hi11")
