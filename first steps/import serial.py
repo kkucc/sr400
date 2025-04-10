@@ -12,69 +12,81 @@ ser = serial.Serial(
 try:
     if ser.is_open:
         # ser.open()
-        ser.write(b":w13=1060,0.\r\n")#Hz
+        # ser.write(b":w13=1060,0.\r\n")#Hz
         time.sleep(0.02)
 #         ser.write(b":w14=18,0.\r\n")#Hz
 #         time.sleep(0.02)
 #         print("hi11")
-#         # ser.write(b":w12=6.\r\n")
+   
 #         # time.sleep(0.02)
 # #ser.write(b":w55=1000000000.\r\n")#Period
 #         ser.write(b":w14=100,0.\r\n")#a=0.7
-#         time.sleep(0.02)
-        ser.write(b":w60=0,0.\r\n")
+        ser.write(b":w74=1,0.\r\n")
+        time.sleep(10)
+        ser.write(b":w10=0,0.\r\n")
         time.sleep(0.02)
-        ser.write(b":w74=1,1.\r\n")
-        time.sleep(0.01)
+        ser.write(b":w60=1,1.\r\n")
+  
+        time.sleep(0.1)
+        ser.write(b":w61=10000,2000.\r\n")
+        #time.sleep(1)
+        #ser.write(b":w10=1,1.\r\n")
+        time.sleep(0.02)
+        ser.write(b":w10=0,0.\r\n")
+        time.sleep(0.02)
+        ser.write(b":w60=3,3.\r\n")
+        time.sleep(0.1)
+        ser.write(b":w61=10000,1.\r\n")
+        time.sleep(1)
         ser.write(b":w10=1,1.\r\n")
-        time.sleep(0.02)
-        ser.write(b":w12=6.\r\n")
-        time.sleep(0.1)
-        ser.write(b":w11=6.\r\n")
-        time.sleep(0.1)
-        offset2=0
-        while offset2<101:
-            # aplit2=1000
-            # ser.write(f":w16={aplit2}.\r\n".encode())
-            APL = 0.005
-            offset = 0
-            n = 0
-            while n < 100:
-                # ser.write(f":w15={1000*APL}.\r\n".encode())
-                # time.sleep(APL+0.001)
-                # ser.write(b":w11=10.\r\n")  # 2
-                # time.sleep(2*(APL+0.001))
-                print("hi111")
-                w17_value = 950 + offset
-                ser.write(f":w17={w17_value}.\r\n".encode())
-                time.sleep(0.005)
-                offset += 1
+        # time.sleep(0.02)
+        # ser.write(b":w12=6.\r\n")
+        # time.sleep(0.1)
+        # ser.write(b":w11=6.\r\n")
+        # time.sleep(0.1)
+        # offset2=0
+        # while offset2<101:
+        #     # aplit2=1000
+        #     # ser.write(f":w16={aplit2}.\r\n".encode())
+        #     APL = 0.005
+        #     offset = 0
+        #     n = 0
+        #     while n < 100:
+        #         # ser.write(f":w15={1000*APL}.\r\n".encode())
+        #         # time.sleep(APL+0.001)
+        #         # ser.write(b":w11=10.\r\n")  # 2
+        #         # time.sleep(2*(APL+0.001))
+        #         print("hi111")
+        #         w17_value = 950 + offset
+        #         ser.write(f":w17={w17_value}.\r\n".encode())
+        #         time.sleep(0.005)
+        #         offset += 1
 
-                n += 1
-            time.sleep(0.005)
-            offset2+=1
-            ser.write(f":w18={900+offset2}.\r\n".encode())
-            time.sleep(0.005)
-            offset = 0
-            n = 0
-            while n < 100:
-                # ser.write(f":w15={1000*APL}.\r\n".encode())
-                # time.sleep(APL+0.001)
-                # ser.write(b":w11=11.\r\n")  # 2
-                # time.sleep(2*(APL+0.001))
-                print("hi112")
-                w17_value = 1050 - offset
-                ser.write(f":w17={w17_value}.\r\n".encode())
-                time.sleep(0.005)
+        #         n += 1
+        #     time.sleep(0.005)
+        #     offset2+=1
+        #     ser.write(f":w18={900+offset2}.\r\n".encode())
+        #     time.sleep(0.005)
+        #     offset = 0
+        #     n = 0
+        #     while n < 100:
+        #         # ser.write(f":w15={1000*APL}.\r\n".encode())
+        #         # time.sleep(APL+0.001)
+        #         # ser.write(b":w11=11.\r\n")  # 2
+        #         # time.sleep(2*(APL+0.001))
+        #         print("hi112")
+        #         w17_value = 1050 - offset
+        #         ser.write(f":w17={w17_value}.\r\n".encode())
+        #         time.sleep(0.005)
 
-                offset += 1
+        #         offset += 1
 
-                n += 1
-            time.sleep(0.005)
-            offset2+=1
-            ser.write(f":w18={900+offset2}.\r\n".encode())
-            time.sleep(0.005)
-        ser.write(b":w10=0,0.\r\n")        
+        #         n += 1
+        #     time.sleep(0.005)
+        #     offset2+=1
+        #     ser.write(f":w18={900+offset2}.\r\n".encode())
+        #     time.sleep(0.005)
+        # ser.write(b":w10=0,0.\r\n")        
         # p=250
         # offset=0
         # for i in range(p):
