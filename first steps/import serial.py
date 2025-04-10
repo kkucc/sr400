@@ -65,7 +65,7 @@ class SerialDeviceController:
         """Checks if the serial port is connected and open."""
         return self.ser and self.ser.is_open
 
-    def send_command(self, command, delay=0.02):
+    def send_command(self, command, delay=0.002):
         """Sends a command to the serial device."""
         if not self.is_connected():
             print("Error: Not connected.")
@@ -73,7 +73,7 @@ class SerialDeviceController:
         try:
             full_command = command + "\r\n"
             self.ser.write(full_command.encode())
-            print(f"Sent: {command}") # Log sent command
+            #print(f"Sent: {command}") # Log sent command
             if delay > 0:
                 time.sleep(delay)
             # Optional: Read response if expected
@@ -111,21 +111,21 @@ class SerialDeviceController:
             log_callback("Starting sequence...")
 
             # --- Initial Configuration ---
-            self.send_command(f":w13={hz},0.", delay=0.02)
+            self.send_command(f":w13={hz},0.", delay=0.002)
             log_callback(f"Set Hz (w13): {hz}")
-            self.send_command(f":w14=18,0.", delay=0.02) # 14 static
+            self.send_command(f":w14=18,0.", delay=0.002) # 14 static
 
-            self.send_command(":w60=0,0.", delay=0.02) # Fixed init
-            log_callback("Sent: :w60=0,0.")
-            self.send_command(":w74=1,1.", delay=0.01) # Fixed init
-            log_callback("Sent: :w74=1,1.")
-            self.send_command(":w10=1,1.", delay=0.02) # Enable output
-            log_callback("Sent: :w10=1,1.")
+            # self.send_command(":w60=0,0.", delay=0.002) # Fixed init
+            # log_callback("Sent: :w60=0,0.")
+            # self.send_command(":w74=1,1.", delay=0.001) # Fixed init
+            # log_callback("Sent: :w74=1,1.")
+            self.send_command(":w10=1,1.", delay=0.002) # Enable output
+            log_callback(" :w10=1,1.")
 
             # Set Wavefront Type
-            self.send_command(f":w12={wavefront}.", delay=0.1)
+            self.send_command(f":w12={wavefront}.", delay=0.001)
             log_callback(f"Set Wavefront (w12): {wavefront}")
-            self.send_command(f":w11={wavefront}.", delay=0.1)
+            self.send_command(f":w11={wavefront}.", delay=0.001)
             log_callback(f"Set Wavefront (w11): {wavefront}")
 
             # Main Loop
