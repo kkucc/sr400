@@ -50,8 +50,7 @@ class SerialDeviceController:
             try:
                 # Try sending a stop command before closing if applicable
                 if self.is_running:
-                    self.stop_sequence() # Ensure sequence is stopped
-                # Send a general stop/reset if known
+                    self.stop_sequence() 
                 self.send_command(":w10=0,0.")
                 time.sleep(0.1)
             except Exception as e:
@@ -97,7 +96,7 @@ class SerialDeviceController:
             return
 
         self.is_running = True
-        self.stop_event.clear() # Ensure stop flag is reset
+        self.stop_event.clear() # stop flag
 
         try:
             # --- Parameters ---
@@ -107,22 +106,20 @@ class SerialDeviceController:
             start_offset_w18 = params.get('start_offset_w18', 900)
             num_cycles = params.get('num_cycles', 101)
             inner_sleep = params.get('inner_sleep', 0.005)
-            inner_ramp_steps = params.get('inner_ramp_steps', 100) # N value in original script
+            inner_ramp_steps = params.get('inner_ramp_steps', 100) # N value 
 
             log_callback("Starting sequence...")
 
             # --- Initial Configuration ---
-            # Example: Set Hz (assuming :w13 controls it)
             self.send_command(f":w13={hz},0.", delay=0.02)
             log_callback(f"Set Hz (w13): {hz}")
-            # Example: Set another Hz related register if needed
-            self.send_command(f":w14=18,0.", delay=0.02) # Example static value
+            self.send_command(f":w14=18,0.", delay=0.02) # 14 static
 
             self.send_command(":w60=0,0.", delay=0.02) # Fixed init
             log_callback("Sent: :w60=0,0.")
             self.send_command(":w74=1,1.", delay=0.01) # Fixed init
             log_callback("Sent: :w74=1,1.")
-            self.send_command(":w10=1,1.", delay=0.02) # Enable output?
+            self.send_command(":w10=1,1.", delay=0.02) # Enable output
             log_callback("Sent: :w10=1,1.")
 
             # Set Wavefront Type
@@ -131,7 +128,7 @@ class SerialDeviceController:
             self.send_command(f":w11={wavefront}.", delay=0.1)
             log_callback(f"Set Wavefront (w11): {wavefront}")
 
-            # --- Main Loop ---
+            # Main Loop
             current_offset_w18 = start_offset_w18
             for cycle in range(num_cycles):
                 if self.stop_event.is_set():
@@ -140,7 +137,7 @@ class SerialDeviceController:
 
                 log_callback(f"--- Cycle {cycle + 1} / {num_cycles} ---")
 
-                # --- Ramp Up (Inner Loop 1) ---
+                #  Ramp Up (Inner Loop 1) 
                 log_callback("Ramping w17 up...")
                 offset_ramp = 0
                 self.send_command(f":w18={current_offset_w18}.", delay=inner_sleep) # Set w18 for this sub-cycle
@@ -150,7 +147,7 @@ class SerialDeviceController:
                     if self.stop_event.is_set(): break
                     w17_value = start_offset_w17 + offset_ramp
                     if not self.send_command(f":w17={w17_value}.", delay=inner_sleep):
-                         raise Exception("Failed to send w17 command (ramp up)") # Stop if send fails
+                        raise Exception("Failed to send w17 command (ramp up)") # Stop if send fails
                     # log_callback(f"  Set w17 = {w17_value}") # Too verbose for log
                     offset_ramp += 1
                 if self.stop_event.is_set(): break
@@ -159,26 +156,26 @@ class SerialDeviceController:
 
                 current_offset_w18 += 1 # Increment w18 for next part
 
-                # --- Ramp Down (Inner Loop 2) ---
+                # Ramp Down
                 log_callback("Ramping w17 down...")
                 offset_ramp = 0
                 self.send_command(f":w18={current_offset_w18}.", delay=inner_sleep) # Set new w18
                 log_callback(f"Set w18 = {current_offset_w18}")
 
                 for n in range(inner_ramp_steps):
-                     if self.stop_event.is_set(): break
-                     w17_value = (start_offset_w17 + inner_ramp_steps -1) - offset_ramp # Start from high value
-                     if not self.send_command(f":w17={w17_value}.", delay=inner_sleep):
-                         raise Exception("Failed to send w17 command (ramp down)")
-                     # log_callback(f"  Set w17 = {w17_value}") # Too verbose
-                     offset_ramp += 1
+                    if self.stop_event.is_set(): break
+                    w17_value = (start_offset_w17 + inner_ramp_steps -1) - offset_ramp # Start from high value
+                    if not self.send_command(f":w17={w17_value}.", delay=inner_sleep):
+                        raise Exception("Failed to send w17 command (ramp down)")
+                    # log_callback(f"  Set w17 = {w17_value}") # Too verbose
+                    offset_ramp += 1
                 if self.stop_event.is_set(): break
                 log_callback(f"  Ramp down complete (w17 reached ~{start_offset_w17})")
-                time.sleep(inner_sleep) # Pause after ramp
+                time.sleep(inner_sleep) 
 
-                current_offset_w18 += 1 # Increment w18 for next cycle
+                current_offset_w18 += 1 
 
-            # --- End of Sequence ---
+            # End of Sequence
             if not self.stop_event.is_set():
                 log_callback("Sequence completed normally.")
 
@@ -187,9 +184,9 @@ class SerialDeviceController:
         except Exception as e:
             log_callback(f"Error during sequence: {e}")
         finally:
-            # --- Cleanup ---
+            # Clean up
             log_callback("Sending stop command :w10=0,0.")
-            self.send_command(":w10=0,0.") # Ensure output is stopped
+            self.send_command(":w10=0,0.") 
             self.is_running = False
             log_callback("Sequence finished.")
 
@@ -212,14 +209,14 @@ class SerialControlApp:
         self.controller = SerialDeviceController()
         self.sequence_thread = None
 
-        # Styling (optional)
+        # Style
         self.root.configure(bg="#f0f0f0")
         style = ttk.Style()
         style.configure("TButton", padding=6, relief="flat", background="#ccc")
         style.configure("TLabel", padding=2, background="#f0f0f0")
         style.configure("TEntry", padding=4)
 
-        # --- GUI Frames ---
+        # GUI Frames
         conn_frame = ttk.Frame(root, padding="10")
         conn_frame.pack(fill=tk.X)
 
@@ -232,7 +229,7 @@ class SerialControlApp:
         log_frame = ttk.Frame(root, padding="10")
         log_frame.pack(fill=tk.BOTH, expand=True)
 
-        # --- Connection Frame ---
+        # Connection Frame GUI
         ttk.Label(conn_frame, text="Port:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
         self.port_entry = ttk.Entry(conn_frame, width=10)
         self.port_entry.insert(0, self.controller.port)
@@ -253,7 +250,7 @@ class SerialControlApp:
         self.status_label.grid(row=0, column=6, padx=10, pady=5, sticky="e")
         conn_frame.columnconfigure(6, weight=1) # Make status label expand
 
-        # --- Parameter Frame ---
+        # Parameter Frame 
         param_col1 = 0
         param_col2 = 2
         param_row = 0
@@ -296,14 +293,14 @@ class SerialControlApp:
         self.inner_sleep_entry.grid(row=param_row, column=param_col2+1, padx=5, pady=3)
 
 
-        # --- Action Frame ---
+        # Action Frame 
         self.start_button = ttk.Button(action_frame, text="Start Sequence", command=self.start_sequence, state=tk.DISABLED)
         self.start_button.pack(side=tk.LEFT, padx=10, pady=5)
 
         self.stop_button = ttk.Button(action_frame, text="Stop Sequence", command=self.stop_sequence, state=tk.DISABLED)
         self.stop_button.pack(side=tk.LEFT, padx=10, pady=5)
 
-        # --- Log Frame ---
+        # Log Frame 
         self.log_area = scrolledtext.ScrolledText(log_frame, wrap=tk.WORD, height=15, width=70)
         self.log_area.pack(fill=tk.BOTH, expand=True)
         self.log_area.configure(state='disabled') # Read-only
@@ -410,8 +407,8 @@ class SerialControlApp:
         else:
             # Finished or wasn't running
             if self.controller.is_connected(): # Only enable if still connected
-                 self.start_button.config(state=tk.NORMAL)
-                 self.set_param_entries_state(tk.NORMAL)
+                self.start_button.config(state=tk.NORMAL)
+                self.set_param_entries_state(tk.NORMAL)
             self.stop_button.config(state=tk.DISABLED)
             # Log if it finished unexpectedly (e.g., error) vs normal stop?
             # Controller's is_running flag should be False now.
@@ -434,7 +431,7 @@ class SerialControlApp:
             # It might be better to wait for the thread to join here
             # but daemon=True helps prevent hangs if it gets stuck.
             if self.sequence_thread:
-                 self.sequence_thread.join(timeout=1.0) # Wait up to 1 sec
+                self.sequence_thread.join(timeout=1.0) # Wait up to 1 sec
 
         self.disconnect_serial() # Ensure disconnection
         self.root.destroy()
