@@ -25,14 +25,17 @@ try:
         time.sleep(0.001)
         ser.write(b":w11=3.\r\n")#амплитуда и офсет еще    
 #The parameter i is 0,1,or 2 to select counter A,B, or T 
-    time.sleep(0.2)
+    time.sleep(0.02)
     sr4.write("CR\n")
     # time.sleep(0.1)
-    # #Tset= 100/HZ-0.002 
-    # #sr4.write("CP2,"+str(Tset),"\n")
+    Tset= 0.008*(10**7)
+    sr4.write("CP2,"+str(Tset),"\n")
+    time.sleep(0.02)
+    HZ=Tset+0.002*(10**7)
+    ser.write(f":w13={HZ},0.\r\n".encode())
     NumofPeriods=101
-    # sr4.write("NP"+" "+str(NumofPeriods))#N PERIODS=101 
-    # sr4.write("NE 0\n\r")#sr4.write("CS\n")
+    sr4.write("NP"+" "+str(NumofPeriods))#N PERIODS=101 
+    sr4.write("NE 0\n\r")#sr4.write("CS\n")
     for i in range(0,5):
         Scanlvl=-1.960 #PORT1 LVL=-1.960 V
         sr4.write("PL 1,"+" "+str(Scanlvl),"\n")
