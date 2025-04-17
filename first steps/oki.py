@@ -13,7 +13,7 @@ ser = serial.Serial(
 try:
     if ser.is_open:
         time.sleep(1)
-        ser.write(b":w10=1,1.\r\n")#ch1 -1, ch2 ,1
+        ser.write(b":w10=1,0.\r\n")#ch1 -1, ch2 ,1
         HZ=100000 #100hz
         time.sleep(0.001)
         ser.write(f":w13={HZ},0.\r\n")#Hz
@@ -26,31 +26,40 @@ finally:
     if ser.is_open:
         ser.close()     
 #The parameter i is 0,1,or 2 to select counter A,B, or T 
+time.sleep(0.2)
+
 pyvisa.log_to_screen = True 
 try:
     rm=pyvisa.ResourceManager()#"@ni"
     print("ok")
     sr4 = rm.open_resource('ASRL5::INSTR')
+    
     sr4.write("CR\n")
-    time.sleep(0.1)
-    Tset= 100/HZ-0.002 
-    sr4.write("CP2,"+str(Tset),"\n")
+    # time.sleep(0.1)
+    # #Tset= 100/HZ-0.002 
+    # #sr4.write("CP2,"+str(Tset),"\n")
     NumofPeriods=101
-    sr4.write("NP"+" "+str(NumofPeriods))#N PERIODS=101 
-    sr4.write("NE 0\n\r")#sr4.write("CS\n")
-    Scanlvl=-1.960 #PORT1 LVL=-1.960 V
-    sr4.write("PY 1"+" "+str(Scanlvl),"\n")
-    ScanStep=0.010 #PORT1=SCAN ∆=+0.010 V sr4
-    sr4.write("PY 1"+" "+str(ScanStep),"\n")
-    sr4.write("CS\n")
-    Scanlvl=-0.960 #PORT1 LVL=-1.960 V
-    sr4.write("PY 1"+" "+str(Scanlvl),"\n")
-    ScanStep=-0.010 #PORT1=SCAN ∆=+0.010 V sr4
-    sr4.write("PY 1"+" "+str(ScanStep),"\n")
-    sr4.write("CR\n")
-    sr4.write("CS\n")
-    time.sleep(10)
-    sr4.write("CR\n")
+    # sr4.write("NP"+" "+str(NumofPeriods))#N PERIODS=101 
+    # sr4.write("NE 0\n\r")#sr4.write("CS\n")
+    for i in range(0,21):
+        Scanlvl=-1.960 #PORT1 LVL=-1.960 V
+        sr4.write("PL 1,"+" "+str(Scanlvl),"\n")
+        ScanStep=0.010 #PORT1=SCAN ∆=+0.010 V sr4
+        sr4.write("PY 1,"+" "+str(ScanStep)+"\n")
+        sr4.write("CS\n")
+        time.sleep(1.05)
+        Scanlvl= -0.960 #PORT1 LVL=-1.960 V
+        sr4.write("PL 1,"+" "+str(Scanlvl),"\n")
+        ScanStep= -0.010 #PORT1=SCAN ∆=+0.010 V sr4
+        sr4.write("PY 1,"+" "+str(ScanStep)+"\n")
+        time.sleep(0.1)
+        sr4.write("CR\n")
+        sr4.write("CS\n")
+        time.sleep(1.2)
+        Scanlvl=-1.960 #PORT1 LVL=-1.960 V
+        sr4.write("PL 1,"+" "+str(Scanlvl),"\n")
+        sr4.write("CR\n")
+        i+=1
     sr4.close()
 except pyvisa.errors.VisaIOError as e:
     print(f"Error: {e}")
