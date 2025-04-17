@@ -15,8 +15,8 @@ try:
         time.sleep(1)
         ser.write(b":w10=1,0.\r\n")#ch1 -1, ch2 ,1
         HZ=100000 #100hz
-        time.sleep(0.001)
-        ser.write(f":w13={HZ},0.\r\n")#Hz
+        time.sleep(0.01)
+        ser.write(f":w13={HZ},0.\r\n".encode())#Hz
 #еще наверное надо чтобы этот синхруназир с кода Включался
         time.sleep(0.001)
         ser.write(b":w11=3.\r\n")#амплитуда и офсет еще
@@ -41,7 +41,7 @@ try:
     NumofPeriods=101
     # sr4.write("NP"+" "+str(NumofPeriods))#N PERIODS=101 
     # sr4.write("NE 0\n\r")#sr4.write("CS\n")
-    for i in range(0,21):
+    for i in range(0,2):
         Scanlvl=-1.960 #PORT1 LVL=-1.960 V
         sr4.write("PL 1,"+" "+str(Scanlvl),"\n")
         ScanStep=0.010 #PORT1=SCAN ∆=+0.010 V sr4
