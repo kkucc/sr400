@@ -10,7 +10,11 @@ ser = serial.Serial(
     stopbits=serial.STOPBITS_ONE,
     timeout=1
     ) 
+pyvisa.log_to_screen = True 
 try:
+    rm=pyvisa.ResourceManager()#"@ni"
+    print("ok")
+    sr4 = rm.open_resource('ASRL5::INSTR')
     if ser.is_open:
         time.sleep(1)
         ser.write(b":w10=1,0.\r\n")#ch1 -1, ch2 ,1
@@ -19,21 +23,9 @@ try:
         ser.write(f":w13={HZ},0.\r\n".encode())#Hz
 #еще наверное надо чтобы этот синхруназир с кода Включался
         time.sleep(0.001)
-        ser.write(b":w11=3.\r\n")#амплитуда и офсет еще
-except Exception as e:
-    print(f"Error: {e}")
-finally:
-    if ser.is_open:
-        ser.close()     
+        ser.write(b":w11=3.\r\n")#амплитуда и офсет еще    
 #The parameter i is 0,1,or 2 to select counter A,B, or T 
-time.sleep(0.2)
-
-pyvisa.log_to_screen = True 
-try:
-    rm=pyvisa.ResourceManager()#"@ni"
-    print("ok")
-    sr4 = rm.open_resource('ASRL5::INSTR')
-    
+    time.sleep(0.2)
     sr4.write("CR\n")
     # time.sleep(0.1)
     # #Tset= 100/HZ-0.002 
@@ -41,7 +33,7 @@ try:
     NumofPeriods=101
     # sr4.write("NP"+" "+str(NumofPeriods))#N PERIODS=101 
     # sr4.write("NE 0\n\r")#sr4.write("CS\n")
-    for i in range(0,2):
+    for i in range(0,5):
         Scanlvl=-1.960 #PORT1 LVL=-1.960 V
         sr4.write("PL 1,"+" "+str(Scanlvl),"\n")
         ScanStep=0.010 #PORT1=SCAN ∆=+0.010 V sr4
@@ -68,6 +60,7 @@ except ValueError as e:
     print(f"VError: {e}.not connected")
 finally:
     if 'rm' in locals():
+        ser.close() 
         rm.close()
 # NP m Set Number of PERIODS in a scan to 1 <= m <= 2000.
 # DT x Set DWELL time to 2E-3 <= x
