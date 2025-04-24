@@ -12,7 +12,7 @@ class SR400Controller:
     def __init__(self):
         self.rm = None
         self.sr4 = None
-        self.resource_name = 'ASRL5::INSTR'  # Default resource name
+        self.resource_name = 'ASRL5::INSTR' 
 
     def connect(self, resource_name):
         """Connects to the SR400."""
@@ -111,7 +111,7 @@ class SerialDeviceController:
         """Disconnects from the serial port."""
         if self.ser and self.ser.is_open:
             try:
-                # Try sending a stop command before closing if applicable
+                # a stop command before closing
                 if self.is_running:
                     self.stop_sequence() 
                 self.send_command(":w10=0,0.")
@@ -169,15 +169,15 @@ class SerialDeviceController:
 
         try:
             # --- Parameters ---
-            hz = params.get('hz', 1) # Default Hz if not provided
-            wavefront = params.get('wavefront', 6) # Default wavefront if not provided
-            start_offset_w17 = params.get('start_offset_w17', 950)
-            start_offset_w18 = params.get('start_offset_w18', 900)
+            hz = params.get('hz', 1) # Default Hz if 
+            wavefront = params.get('wavefront', 3) # Default wavefront if 
+            # start_offset_w17 = params.get('start_offset_w17', 950)
+            # start_offset_w18 = params.get('start_offset_w18', 900)
             num_cycles = params.get('num_cycles', 101)
             inner_sleep = params.get('inner_sleep', 0.005)
             inner_ramp_steps = params.get('inner_ramp_steps', 100) # N value
             sr400_tset_multiplier = params.get('sr400_tset_multiplier', 0.008) # Default  Tset multiplier
-            sr400_tset_offset_multiplier = params.get('sr400_tset_offset_multiplier', 0.002) #Default tset offset multiplier
+            DWELL = params.get('DWELL', 0.002) #Default tset offset multiplier
             scan_lvl = params.get('scan_lvl', -1.960) # Default scan level
             scan_step = params.get('scan_step', 0.010) # Default scan step
 
@@ -192,8 +192,8 @@ class SerialDeviceController:
             # log_callback("Sent: :w60=0,0.")
             # self.send_command(":w74=1,1.", delay=0.001) # Fixed init
             # log_callback("Sent: :w74=1,1.")
-            self.send_command(":w10=1,1.", delay=0.002) # Enable output
-            log_callback(" :w10=1,1.")
+            self.send_command(":w10=1,0.", delay=0.002) # Enable output
+            log_callback(" :w10=1,0.")
 
             # Set Wavefront Type
             self.send_command(f":w12={wavefront}.", delay=0.001)
@@ -206,60 +206,60 @@ class SerialDeviceController:
             Tset = sr400_tset_multiplier * (10**7)
             sr400_controller.send_command(f"CP2,{Tset}")
             time.sleep(0.02)
-            sr400_hz = Tset + sr400_tset_offset_multiplier * (10**7)
+            sr400_hz = 10**10//(Tset + DWELL * (10**7))
             self.send_command(f":w13={sr400_hz},0.") # Set Hz on serial device based on SR400 calculation
             sr400_controller.send_command(f"NP {num_cycles}")
             sr400_controller.send_command("NE 0")
 
             # Main Loop
-            current_offset_w18 = start_offset_w18
+            current_offset_w18 = 950
             for cycle in range(num_cycles):
                 if self.stop_event.is_set():
                     log_callback("Stop signal received, aborting sequence.")
                     break
+                # for i in range(musorsoffset):
+                    log_callback(f"--- Cycle {cycle + 1} / {num_cycles} ---")
 
-                log_callback(f"--- Cycle {cycle + 1} / {num_cycles} ---")
+                    #  Ramp Up (Inner Loop 1)
+                    log_callback("Ramping w17 up...")
+                    offset_ramp = 0
+                    self.send_command(f":w18={current_offset_w18}.", delay=inner_sleep) # Set w18 for this sub-cycle
+                    log_callback(f"Set w18 = {current_offset_w18}")
 
-                #  Ramp Up (Inner Loop 1)
-                log_callback("Ramping w17 up...")
-                offset_ramp = 0
-                self.send_command(f":w18={current_offset_w18}.", delay=inner_sleep) # Set w18 for this sub-cycle
-                log_callback(f"Set w18 = {current_offset_w18}")
-
-                for n in range(inner_ramp_steps):
+                    for n in range(inner_ramp_steps):
+                        if self.stop_event.is_set(): break
+                        w17_value = start_offset_w17 + offset_ramp
+                        if not self.send_command(f":w17={w17_value}.", delay=inner_sleep):
+                            raise Exception("Failed to send w17 command (ramp up)") # Stop if send fails
+                        # log_callback(f"  Set w17 = {w17_value}") # Too verbose for log
+                        offset_ramp += 1
                     if self.stop_event.is_set(): break
-                    w17_value = start_offset_w17 + offset_ramp
-                    if not self.send_command(f":w17={w17_value}.", delay=inner_sleep):
-                        raise Exception("Failed to send w17 command (ramp up)") # Stop if send fails
-                    # log_callback(f"  Set w17 = {w17_value}") # Too verbose for log
-                    offset_ramp += 1
-                if self.stop_event.is_set(): break
-                log_callback(f"  Ramp up complete (w17 reached ~{start_offset_w17 + inner_ramp_steps -1})")
-                time.sleep(inner_sleep) # Pause after ramp
+                    log_callback(f"  Ramp up complete (w17 reached ~{start_offset_w17 + inner_ramp_steps -1})")
+                    time.sleep(inner_sleep) # Pause after ramp
 
-                current_offset_w18 += 1 # Increment w18 for next part
+                    current_offset_w18 += 1 # Increment w18 for next part
 
-                # Ramp Down
-                log_callback("Ramping w17 down...")
-                offset_ramp = 0
-                self.send_command(f":w18={current_offset_w18}.", delay=inner_sleep) # Set new w18
-                log_callback(f"Set w18 = {current_offset_w18}")
+                    # Ramp Down
+                    log_callback("Ramping w17 down...")
+                    offset_ramp = 0
+                    self.send_command(f":w18={current_offset_w18}.", delay=inner_sleep) # Set new w18
+                    log_callback(f"Set w18 = {current_offset_w18}")
 
-                for n in range(inner_ramp_steps):
+                    for n in range(inner_ramp_steps):
+                        if self.stop_event.is_set(): break
+                        w17_value = (start_offset_w17 + inner_ramp_steps -1) - offset_ramp # Start from high value
+                        if not self.send_command(f":w17={w17_value}.", delay=inner_sleep):
+                            raise Exception("Failed to send w17 command (ramp down)")
+                        # log_callback(f"  Set w17 = {w17_value}") # Too verbose
+                        offset_ramp += 1
                     if self.stop_event.is_set(): break
-                    w17_value = (start_offset_w17 + inner_ramp_steps -1) - offset_ramp # Start from high value
-                    if not self.send_command(f":w17={w17_value}.", delay=inner_sleep):
-                        raise Exception("Failed to send w17 command (ramp down)")
-                    # log_callback(f"  Set w17 = {w17_value}") # Too verbose
-                    offset_ramp += 1
-                if self.stop_event.is_set(): break
-                log_callback(f"  Ramp down complete (w17 reached ~{start_offset_w17})")
-                time.sleep(inner_sleep)
+                    log_callback(f"  Ramp down complete (w17 reached ~{start_offset_w17})")
+                    time.sleep(inner_sleep)
 
                 current_offset_w18 += 1
                 
                 #SR400 Scan sequence
-                log_callback("Starting SR400 Scan...")
+                # log_callback("Starting SR400 Scan...")
                 sr400_controller.send_command(f"PL 1, {scan_lvl}")
                 sr400_controller.send_command(f"PY 1, {scan_step}")
                 sr400_controller.send_command("CS")
@@ -385,23 +385,23 @@ class SerialControlApp:
 
         ttk.Label(param_frame, text="Wavefront (w11/12):").grid(row=param_row, column=param_col1, padx=5, pady=3, sticky="w")
         self.wavefront_entry = ttk.Entry(param_frame, width=10)
-        self.wavefront_entry.insert(0, "6")
+        self.wavefront_entry.insert(0, "3")
         self.wavefront_entry.grid(row=param_row, column=param_col1+1, padx=5, pady=3)
         param_row += 1
 
-        ttk.Label(param_frame, text="Start Offset w17:").grid(row=param_row, column=param_col1, padx=5, pady=3, sticky="w")
-        self.start_offset_w17_entry = ttk.Entry(param_frame, width=10)
-        self.start_offset_w17_entry.insert(0, "950")
-        self.start_offset_w17_entry.grid(row=param_row, column=param_col1+1, padx=5, pady=3)
+        # ttk.Label(param_frame, text="Start Offset w17:").grid(row=param_row, column=param_col1, padx=5, pady=3, sticky="w")
+        # self.start_offset_w17_entry = ttk.Entry(param_frame, width=10)
+        # self.start_offset_w17_entry.insert(0, "950")
+        # self.start_offset_w17_entry.grid(row=param_row, column=param_col1+1, padx=5, pady=3)
 
         # Reset row counter for second column
         param_row = 0
 
-        ttk.Label(param_frame, text="Start Offset w18:").grid(row=param_row, column=param_col2, padx=5, pady=3, sticky="w")
-        self.start_offset_w18_entry = ttk.Entry(param_frame, width=10)
-        self.start_offset_w18_entry.insert(0, "900")
-        self.start_offset_w18_entry.grid(row=param_row, column=param_col2+1, padx=5, pady=3)
-        param_row += 1
+        # ttk.Label(param_frame, text="Start Offset w18:").grid(row=param_row, column=param_col2, padx=5, pady=3, sticky="w")
+        # self.start_offset_w18_entry = ttk.Entry(param_frame, width=10)
+        # self.start_offset_w18_entry.insert(0, "900")
+        # self.start_offset_w18_entry.grid(row=param_row, column=param_col2+1, padx=5, pady=3)
+        # param_row += 1
 
         ttk.Label(param_frame, text="Num Cycles:").grid(row=param_row, column=param_col2, padx=5, pady=3, sticky="w")
         self.num_cycles_entry = ttk.Entry(param_frame, width=10)
@@ -413,26 +413,28 @@ class SerialControlApp:
         self.inner_sleep_entry = ttk.Entry(param_frame, width=10)
         self.inner_sleep_entry.insert(0, "0.005")
         self.inner_sleep_entry.grid(row=param_row, column=param_col2+1, padx=5, pady=3)
+        param_row += 1
+
+        ttk.Label(param_frame, text="Scan Level:").grid(row=param_row, column=param_col2, padx=5, pady=3, sticky="w")
+        self.scan_lvl_entry = ttk.Entry(param_frame, width=10)
+        self.scan_lvl_entry.insert(0, "-1.960")
+        self.scan_lvl_entry.grid(row=param_row, column=param_col2 + 1, padx=5, pady=3)
+        param_row += 1
 
         # SR400 Parameters (Third Column)
         param_row = 0
-        ttk.Label(param_frame, text="SR400 Tset Multiplier:").grid(row=param_row, column=param_col3, padx=5, pady=3, sticky="w")
+        ttk.Label(param_frame, text="SR400 Tset :").grid(row=param_row, column=param_col3, padx=5, pady=3, sticky="w")
         self.sr400_tset_multiplier_entry = ttk.Entry(param_frame, width=10)
         self.sr400_tset_multiplier_entry.insert(0, "0.008")
         self.sr400_tset_multiplier_entry.grid(row=param_row, column=param_col3 + 1, padx=5, pady=3)
         param_row += 1
 
-        ttk.Label(param_frame, text="SR400 Tset Offset Multiplier:").grid(row=param_row, column=param_col3, padx=5, pady=3, sticky="w")
-        self.sr400_tset_offset_multiplier_entry = ttk.Entry(param_frame, width=10)
-        self.sr400_tset_offset_multiplier_entry.insert(0, "0.002")
-        self.sr400_tset_offset_multiplier_entry.grid(row=param_row, column=param_col3 + 1, padx=5, pady=3)
+        ttk.Label(param_frame, text="SR400 DWELL:").grid(row=param_row, column=param_col3, padx=5, pady=3, sticky="w")
+        self.DWELL_entry = ttk.Entry(param_frame, width=10)
+        self.DWELL_entry.insert(0, "0.002")
+        self.DWELL_entry.grid(row=param_row, column=param_col3 + 1, padx=5, pady=3)
         param_row += 1
 
-        ttk.Label(param_frame, text="Scan Level:").grid(row=param_row, column=param_col3, padx=5, pady=3, sticky="w")
-        self.scan_lvl_entry = ttk.Entry(param_frame, width=10)
-        self.scan_lvl_entry.insert(0, "-1.960")
-        self.scan_lvl_entry.grid(row=param_row, column=param_col3 + 1, padx=5, pady=3)
-        param_row += 1
 
         ttk.Label(param_frame, text="Scan Step:").grid(row=param_row, column=param_col3, padx=5, pady=3, sticky="w")
         self.scan_step_entry = ttk.Entry(param_frame, width=10)
@@ -528,12 +530,12 @@ class SerialControlApp:
         try:
             params['hz'] = int(self.hz_entry.get())
             params['wavefront'] = int(self.wavefront_entry.get())
-            params['start_offset_w17'] = int(self.start_offset_w17_entry.get())
-            params['start_offset_w18'] = int(self.start_offset_w18_entry.get())
+            # params['start_offset_w17'] = int(self.start_offset_w17_entry.get())
+            # params['start_offset_w18'] = int(self.start_offset_w18_entry.get())
             params['num_cycles'] = int(self.num_cycles_entry.get())
             params['inner_sleep'] = float(self.inner_sleep_entry.get())
             params['sr400_tset_multiplier'] = float(self.sr400_tset_multiplier_entry.get())
-            params['sr400_tset_offset_multiplier'] = float(self.sr400_tset_offset_multiplier_entry.get())
+            params['DWELL'] = float(self.DWELL_entry.get())
             params['scan_lvl'] = float(self.scan_lvl_entry.get())
             params['scan_step'] = float(self.scan_step_entry.get())
             # Add validation if needed (e.g., range checks)
@@ -605,12 +607,12 @@ class SerialControlApp:
         """Enable/disable parameter entry fields."""
         self.hz_entry.config(state=state)
         self.wavefront_entry.config(state=state)
-        self.start_offset_w17_entry.config(state=state)
-        self.start_offset_w18_entry.config(state=state)
+        # self.start_offset_w17_entry.config(state=state)
+        # self.start_offset_w18_entry.config(state=state)
         self.num_cycles_entry.config(state=state)
         self.inner_sleep_entry.config(state=state)
         self.sr400_tset_multiplier_entry.config(state=state)
-        self.sr400_tset_offset_multiplier_entry.config(state=state)
+        self.DWELL_entry.config(state=state)
         self.scan_lvl_entry.config(state=state)
         self.scan_step_entry.config(state=state)
 

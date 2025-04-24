@@ -28,10 +28,11 @@ try:
     time.sleep(0.02)
     sr4.write("CR\n")
     # time.sleep(0.1)
-    Tset= 0.008*(10**7)
+    Tset= 0.005*(10**7)
     sr4.write("CP2,"+str(Tset),"\n")
     time.sleep(0.02)
-    HZ=Tset+0.002*(10**7)
+    HZ=(10**10)//(Tset+0.002*(10**7))
+    print(HZ)
     ser.write(f":w13={HZ},0.\r\n".encode())
     NumofPeriods=101
     sr4.write("NP"+" "+str(NumofPeriods))#N PERIODS=101 
