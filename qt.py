@@ -112,6 +112,8 @@ class MainWindow(QtWidgets.QMainWindow):
     t_set = 10e-3
     dwel_time = 8e-3
 
+    N_Files = 1
+
     def __init__(self):
         super().__init__()
 
@@ -180,6 +182,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.n_counts_box = self.ui.findChild(QtWidgets.QSpinBox, "N_counts")
 
+        self.files_n = self.ui.findChild(QtWidgets.QSpinBox, "Files")
+
         self.accumulate_time_line = self.ui.findChild(QtWidgets.QLineEdit, "accumulation")
         self.dwel_time_line = self.ui.findChild(QtWidgets.QLineEdit, "dwel")
 
@@ -195,6 +199,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.live_check.stateChanged.connect(self.live)
 
         self.n_counts_box.valueChanged.connect(self.nCounts)
+        self.files_n.valueChanged.connect(self.Files_n)
 
         self.accumulate_time_line.editingFinished.connect(self.accumulate_time_set)
         self.dwel_time_line.editingFinished.connect(self.dwel_time_set)
@@ -232,6 +237,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.N_count = value
         self.control_sr400.numperiod(value)
         print("Новое значение spinbox:", value)
+
+    def Files_n(self, value):        
+        self.N_Files = value
+        print("Новое значение spinbox:", value)
+
 
     def start_clicked(self):
 
@@ -323,7 +333,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 # Получаем текущее время
                 current_time = datetime.datetime.now()
                 # Форматируем строку с датой и временем
-                filename = current_time.strftime("log/%Y-%m-%d_%H-%M-%S.csv")
+                filename = current_time.strftime(f"log\\%Y-%m-%d_%H-%M-%S_{self.N_Files}.csv")
                 with open(filename, "w", newline='', encoding="utf-8") as csvfile:
                     writer = csv.writer(csvfile)
                     # Записываем заголовок (опционально)
