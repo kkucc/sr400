@@ -323,7 +323,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 # Получаем текущее время
                 current_time = datetime.datetime.now()
                 # Форматируем строку с датой и временем
-                filename = current_time.strftime("%Y-%m-%d_%H-%M-%S.csv")
+                filename = current_time.strftime("log/%Y-%m-%d_%H-%M-%S.csv")
                 with open(filename, "w", newline='', encoding="utf-8") as csvfile:
                     writer = csv.writer(csvfile)
                     # Записываем заголовок (опционально)
